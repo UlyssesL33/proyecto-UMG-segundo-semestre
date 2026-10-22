@@ -14,7 +14,7 @@
 #include "modelos.h"       // struct Curso y struct Estudiante
 #include "validaciones.h"  // leerEntero, leerDecimal, leerTexto, leerCarne
 #include "cursos.h"        // cargarPensum, buscarCurso, listarPensum
-#include "estudiantes.h"   // registrarEstudiante, buscarEstudiante
+#include "estudiantes.h"   // registrar, buscar, consultar y listar estudiantes
 
 using namespace std;
 
@@ -114,8 +114,8 @@ int main() {
         switch (opcion) {
             case 1:  registrarEstudiante(estudiantes, numEstudiantes);           break;
             case 2:  cout << "\n[Inscribir curso / notas] En construccion.\n";    break;
-            case 3:  cout << "\n[Consultar estudiante] En construccion.\n";       break;
-            case 4:  cout << "\n[Listar estudiantes] En construccion.\n";         break;
+            case 3:  consultarEstudiante(estudiantes, numEstudiantes);           break;
+            case 4:  listarEstudiantes(estudiantes, numEstudiantes);             break;
             case 5:  cout << "\n[Modificar estudiante] En construccion.\n";       break;
             case 6:  cout << "\n[Eliminar estudiante] En construccion.\n";        break;
             case 7:  cout << "\n[Estadisticas] En construccion.\n";               break;

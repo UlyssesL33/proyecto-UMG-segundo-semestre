@@ -18,3 +18,12 @@ int buscarEstudiante(const Estudiante estudiantes[], int numEstudiantes,
 // numEstudiantes se pasa por referencia (&) porque la funcion lo aumenta.
 // Devuelve true si se registro, false si no (arreglo lleno o carne repetido).
 bool registrarEstudiante(Estudiante estudiantes[], int& numEstudiantes);
+
+// Muestra la ficha de un estudiante (carne, nombre, carrera).
+void mostrarEstudiante(const Estudiante& e);
+
+// Opcion 3: pide un carne y muestra la ficha de ese estudiante.
+void consultarEstudiante(const Estudiante estudiantes[], int numEstudiantes);
+
+// Opcion 4: muestra todos los estudiantes registrados en una tabla.
+void listarEstudiantes(const Estudiante estudiantes[], int numEstudiantes);

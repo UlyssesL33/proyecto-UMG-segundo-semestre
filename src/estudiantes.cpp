@@ -6,6 +6,7 @@
 #include "validaciones.h"
 
 #include <iostream>
+#include <iomanip>   // setw: alinear columnas
 
 using namespace std;
 
@@ -81,4 +82,63 @@ bool registrarEstudiante(Estudiante estudiantes[], int& numEstudiantes) {
     cout << "    Carrera: " << nuevo.carrera << " - " << NOMBRE_CARRERA << "\n";
     cout << "  Total de estudiantes: " << numEstudiantes << "\n";
     return true;
+}
+
+// ---------------------------------------------------------------------
+// Ficha de un estudiante. En el paso 11 se le agregan sus cursos,
+// notas y promedio.
+// ---------------------------------------------------------------------
+void mostrarEstudiante(const Estudiante& e) {
+    cout << "\n  Carne:   " << e.carne;
+    cout << "\n  Nombre:  " << e.nombre;
+    cout << "\n  Carrera: " << e.carrera << " - " << NOMBRE_CARRERA << "\n";
+}
+
+// ---------------------------------------------------------------------
+// Pasos:
+//   1. Si no hay estudiantes, no tiene sentido preguntar.
+//   2. Pedir el carne y buscarlo.
+//   3. Mostrar la ficha, o avisar que no existe.
+// ---------------------------------------------------------------------
+void consultarEstudiante(const Estudiante estudiantes[], int numEstudiantes) {
+    cout << "\n--- Consultar estudiante ---\n";
+
+    if (numEstudiantes == 0) {
+        cout << "  No hay estudiantes registrados.\n";
+        return;
+    }
+
+    string carne = leerCarne("Carne a buscar: ");
+    int pos = buscarEstudiante(estudiantes, numEstudiantes, carne);
+
+    if (pos == -1) {
+        cout << "  No existe un estudiante con carne " << carne << ".\n";
+    } else {
+        mostrarEstudiante(estudiantes[pos]);
+    }
+}
+
+// ---------------------------------------------------------------------
+// Recorre el arreglo de 0 a numEstudiantes-1 y muestra una fila por
+// estudiante. Solo se recorren las posiciones ocupadas, nunca las 100.
+// ---------------------------------------------------------------------
+void listarEstudiantes(const Estudiante estudiantes[], int numEstudiantes) {
+    cout << "\n--- Listado de estudiantes ---\n";
+
+    if (numEstudiantes == 0) {
+        cout << "  No hay estudiantes registrados.\n";
+        return;
+    }
+
+    cout << left << setw(5) << "No." << setw(16) << "Carne"
+         << setw(36) << "Nombre" << "Carrera\n";
+
+    for (int i = 0; i < numEstudiantes; i++) {
+        cout << left << setw(5) << (i + 1)
+             << setw(16) << estudiantes[i].carne
+             << setw(36) << estudiantes[i].nombre
+             << estudiantes[i].carrera << "\n";
+    }
+
+    cout << "\nTotal: " << numEstudiantes << " estudiante(s).\n";
 }
