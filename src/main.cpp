@@ -11,6 +11,9 @@
 #include <cstdlib>   // system()
 #include <limits>    // numeric_limits, para limpiar el buffer de entrada
 
+#include "config.h"   // constantes (NOTA_MINIMA, MAX_CURSOS, ...)
+#include "modelos.h"  // struct Curso y struct Estudiante
+
 using namespace std;
 
 // Limpia la consola. Se usa solo desde aqui para que, si algun dia
