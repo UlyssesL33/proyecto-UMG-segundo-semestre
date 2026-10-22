@@ -1,0 +1,204 @@
+// =====================================================================
+// cursos.cpp - Carga y consulta del pensum
+// =====================================================================
+#include "cursos.h"
+#include "config.h"
+#include "validaciones.h"   // recortar()
+
+#include <iostream>
+#include <fstream>   // ifstream: leer archivos
+#include <sstream>   // stringstream: convertir texto a numero
+#include <iomanip>   // setw: alinear columnas
+
+using namespace std;
+
+// ---------------------------------------------------------------------
+// Funciones auxiliares (solo se usan dentro de este archivo)
+// ---------------------------------------------------------------------
+
+// Parte una linea por el caracter '|' y guarda cada pedazo en campos[].
+// Devuelve cuantos campos encontro.
+// Ejemplo: "090008|Algoritmos|5|2|000000|0"
+//   -> campos = {"090008", "Algoritmos", "5", "2", "000000", "0"} -> 6
+static int partirLinea(const string& linea, string campos[], int maxCampos) {
+    int cantidad = 0;
+    int inicio = 0;
+
+    while (cantidad < maxCampos) {
+        int barra = (int)linea.find('|', inicio);
+
+        if (barra == (int)string::npos) {
+            // Ultimo campo: desde inicio hasta el final de la linea
+            campos[cantidad] = recortar(linea.substr(inicio));
+            cantidad++;
+            break;
+        }
+
+        campos[cantidad] = recortar(linea.substr(inicio, barra - inicio));
+        cantidad++;
+        inicio = barra + 1;
+    }
+    return cantidad;
+}
+
+// Convierte texto a entero. Devuelve false si el texto no es un numero.
+static bool textoAEntero(const string& texto, int& resultado) {
+    stringstream ss(texto);
+    char sobrante;
+    return (ss >> resultado) && !(ss >> sobrante);
+}
+
+// ---------------------------------------------------------------------
+// Lee datos/pensum.txt linea por linea.
+//   - Las lineas vacias y las que empiezan con '#' se ignoran.
+//   - Cada linea valida tiene 6 campos separados por '|'.
+//   - Si una linea esta mal escrita se avisa y se salta.
+// ---------------------------------------------------------------------
+int cargarPensum(Curso cursos[], const string& ruta) {
+    ifstream archivo(ruta.c_str());
+
+    if (!archivo.is_open()) {
+        return -1;
+    }
+
+    const int NUM_CAMPOS = 6;
+    string campos[NUM_CAMPOS];
+    string linea;
+    int numCursos = 0;
+    int numeroLinea = 0;
+
+    while (getline(archivo, linea)) {
+        numeroLinea++;
+        linea = recortar(linea);
+
+        if (linea.empty() || linea[0] == '#') {
+            continue;  // comentario o linea en blanco
+        }
+
+        if (numCursos == MAX_CURSOS) {
+            cout << "Aviso: el pensum tiene mas de " << MAX_CURSOS
+                 << " cursos; se ignoran los demas.\n";
+            break;
+        }
+
+        int encontrados = partirLinea(linea, campos, NUM_CAMPOS);
+
+        Curso c;
+        bool valida = (encontrados == NUM_CAMPOS)
+                   && textoAEntero(campos[2], c.creditos)
+                   && textoAEntero(campos[3], c.ciclo)
+                   && textoAEntero(campos[5], c.creditosMinimos);
+
+        if (!valida) {
+            cout << "Aviso: linea " << numeroLinea << " del pensum mal escrita, se ignora.\n";
+            continue;
+        }
+
+        c.codigo        = campos[0];
+        c.nombre        = campos[1];
+        c.prerrequisito = campos[4];
+
+        cursos[numCursos] = c;
+        numCursos++;
+    }
+
+    archivo.close();
+
+    // Revision de integridad: cada prerrequisito debe ser un curso que exista
+    for (int i = 0; i < numCursos; i++) {
+        string req = cursos[i].prerrequisito;
+        if (req != SIN_PRERREQUISITO && buscarCurso(cursos, numCursos, req) == -1) {
+            cout << "Aviso: el prerrequisito " << req << " de " << cursos[i].codigo
+                 << " no existe en el pensum.\n";
+        }
+    }
+
+    return numCursos;
+}
+
+// ---------------------------------------------------------------------
+// Busqueda secuencial: recorre el arreglo hasta encontrar el codigo.
+// ---------------------------------------------------------------------
+int buscarCurso(const Curso cursos[], int numCursos, const string& codigo) {
+    for (int i = 0; i < numCursos; i++) {
+        if (cursos[i].codigo == codigo) {
+            return i;
+        }
+    }
+    return -1;
+}
+
+// ---------------------------------------------------------------------
+int totalCreditosPensum(const Curso cursos[], int numCursos) {
+    int total = 0;
+    for (int i = 0; i < numCursos; i++) {
+        total += cursos[i].creditos;
+    }
+    return total;
+}
+
+// ---------------------------------------------------------------------
+// Texto que describe el requisito de un curso:
+//   "090008 Algoritmos", "70 creditos aprobados" o "-"
+// ---------------------------------------------------------------------
+static string describirRequisito(const Curso cursos[], int numCursos, const Curso& c) {
+    if (c.prerrequisito != SIN_PRERREQUISITO) {
+        int pos = buscarCurso(cursos, numCursos, c.prerrequisito);
+        if (pos != -1) {
+            return cursos[pos].codigo + " " + cursos[pos].nombre;
+        }
+        return c.prerrequisito + " (no encontrado)";
+    }
+    if (c.creditosMinimos > 0) {
+        stringstream ss;
+        ss << c.creditosMinimos << " creditos aprobados";
+        return ss.str();
+    }
+    return "-";
+}
+
+// ---------------------------------------------------------------------
+// Recorre los ciclos del 1 al ultimo y, en cada uno, muestra sus cursos.
+// ---------------------------------------------------------------------
+void listarPensum(const Curso cursos[], int numCursos) {
+    // Averiguar cual es el ciclo mas alto
+    int ultimoCiclo = 0;
+    for (int i = 0; i < numCursos; i++) {
+        if (cursos[i].ciclo > ultimoCiclo) {
+            ultimoCiclo = cursos[i].ciclo;
+        }
+    }
+
+    cout << "\nPENSUM - " << NOMBRE_CARRERA << " (" << CODIGO_CARRERA << ")\n";
+
+    for (int ciclo = 1; ciclo <= ultimoCiclo; ciclo++) {
+        cout << "\n--- Ciclo " << ciclo << " ---\n";
+        cout << left << setw(8) << "Codigo" << setw(46) << "Curso"
+             << setw(5) << "Cr." << "Requisito\n";
+
+        int creditosCiclo = 0;
+        for (int i = 0; i < numCursos; i++) {
+            if (cursos[i].ciclo == ciclo) {
+                cout << left << setw(8) << cursos[i].codigo
+                     << setw(46) << cursos[i].nombre
+                     << setw(5) << cursos[i].creditos
+                     << describirRequisito(cursos, numCursos, cursos[i]) << "\n";
+                creditosCiclo += cursos[i].creditos;
+            }
+        }
+        cout << "Creditos del ciclo: " << creditosCiclo << "\n";
+    }
+
+    cout << "\nTotal: " << numCursos << " cursos, "
+         << totalCreditosPensum(cursos, numCursos) << " creditos.\n";
+}
+
+// ---------------------------------------------------------------------
+void mostrarCurso(const Curso cursos[], int numCursos, int posicion) {
+    const Curso& c = cursos[posicion];
+    cout << "\n  Codigo:     " << c.codigo
+         << "\n  Nombre:     " << c.nombre
+         << "\n  Creditos:   " << c.creditos
+         << "\n  Ciclo:      " << c.ciclo
+         << "\n  Requisito:  " << describirRequisito(cursos, numCursos, c) << "\n";
+}

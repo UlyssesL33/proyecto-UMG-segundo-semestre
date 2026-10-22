@@ -13,8 +13,17 @@
 #include "config.h"        // constantes (NOTA_MINIMA, MAX_CURSOS, ...)
 #include "modelos.h"       // struct Curso y struct Estudiante
 #include "validaciones.h"  // leerEntero, leerDecimal, leerTexto, leerCarne
+#include "cursos.h"        // cargarPensum, buscarCurso, listarPensum
 
 using namespace std;
+
+// ---------------------------------------------------------------------
+// Datos del programa
+// Se declaran fuera de main (variables globales) porque los arreglos de
+// struct son grandes; dentro de main podrian llenar la pila de memoria.
+// ---------------------------------------------------------------------
+Curso cursos[MAX_CURSOS];
+int   numCursos = 0;
 
 // Limpia la consola. Se usa solo desde aqui para que, si algun dia
 // hay que cambiar el comando, se cambie en un unico lugar.
@@ -47,6 +56,27 @@ void probarValidaciones() {
     cout << "  Parcial 2: " << p2 << " / " << PUNTOS_MAXIMOS[PARCIAL_2] << "\n";
 }
 
+// ---------------------------------------------------------------------
+// Opcion 11: consultar el pensum completo o un curso por su codigo.
+// ---------------------------------------------------------------------
+void menuPensum() {
+    cout << "\n1. Ver pensum completo por ciclo\n";
+    cout << "2. Buscar curso por codigo\n";
+    int sub = leerEntero("Seleccione: ", 1, 2);
+
+    if (sub == 1) {
+        listarPensum(cursos, numCursos);
+    } else {
+        string codigo = leerTexto("Codigo del curso (ej. 090008): ");
+        int pos = buscarCurso(cursos, numCursos, codigo);
+        if (pos == -1) {
+            cout << "  No existe un curso con codigo " << codigo << ".\n";
+        } else {
+            mostrarCurso(cursos, numCursos, pos);
+        }
+    }
+}
+
 void mostrarMenu() {
     cout << "=============================================\n";
     cout << "   CONTROL ACADEMICO - ING. EN SISTEMAS UMG\n";
@@ -61,11 +91,29 @@ void mostrarMenu() {
     cout << " 8. Analisis matricial        (Algebra)\n";
     cout << " 9. Arbol y cursos habilitados (Discreta)\n";
     cout << "10. Guardar informacion\n";
+    cout << "11. Ver pensum\n";
     cout << " 0. Salir\n";
     cout << "---------------------------------------------\n";
 }
 
 int main() {
+    // Sin pensum el programa no puede funcionar: se carga antes del menu.
+    numCursos = cargarPensum(cursos, RUTA_PENSUM);
+
+    if (numCursos == -1) {
+        cout << "Error: no se encontro el archivo " << RUTA_PENSUM << "\n";
+        cout << "Ejecute el programa desde la carpeta raiz del proyecto.\n";
+        return 1;
+    }
+    if (numCursos == 0) {
+        cout << "Error: el archivo " << RUTA_PENSUM << " no tiene cursos validos.\n";
+        return 1;
+    }
+
+    cout << "Pensum cargado: " << numCursos << " cursos, "
+         << totalCreditosPensum(cursos, numCursos) << " creditos.\n";
+    pausar();
+
     int opcion;
 
     do {
@@ -73,8 +121,8 @@ int main() {
         mostrarMenu();
 
         // leerEntero vuelve a preguntar si se escriben letras o un numero
-        // fuera de 0-10, asi que aqui opcion siempre es valida.
-        opcion = leerEntero("Seleccione una opcion: ", 0, 10);
+        // fuera de 0-11, asi que aqui opcion siempre es valida.
+        opcion = leerEntero("Seleccione una opcion: ", 0, 11);
 
         switch (opcion) {
             case 1:  probarValidaciones();                                       break;
@@ -87,8 +135,9 @@ int main() {
             case 8:  cout << "\n[Analisis matricial] En construccion.\n";         break;
             case 9:  cout << "\n[Arbol y cursos habilitados] En construccion.\n"; break;
             case 10: cout << "\n[Guardar informacion] En construccion.\n";        break;
+            case 11: menuPensum();                                               break;
             case 0:  cout << "\nSaliendo del programa. Hasta pronto.\n";          break;
-            default: break;  // no deberia pasar: leerEntero ya valido 0-10
+            default: break;  // no deberia pasar: leerEntero ya valido 0-11
         }
 
         if (opcion != 0) {
