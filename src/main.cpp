@@ -16,6 +16,7 @@
 #include "cursos.h"        // cargarPensum, buscarCurso, listarPensum
 #include "estudiantes.h"   // registrar, buscar, consultar y listar estudiantes
 #include "archivos.h"      // guardarEstudiantes, cargarEstudiantes
+#include "notas.h"         // inscribir cursos e ingresar notas
 
 using namespace std;
 
@@ -137,7 +138,7 @@ int main() {
 
         switch (opcion) {
             case 1:  registrarEstudiante(estudiantes, numEstudiantes);           break;
-            case 2:  cout << "\n[Inscribir curso / notas] En construccion.\n";    break;
+            case 2:  menuCursosYNotas(estudiantes, numEstudiantes, cursos, numCursos); break;
             case 3:  consultarEstudiante(estudiantes, numEstudiantes);           break;
             case 4:  listarEstudiantes(estudiantes, numEstudiantes);             break;
             case 5:  cout << "\n[Modificar estudiante] En construccion.\n";       break;

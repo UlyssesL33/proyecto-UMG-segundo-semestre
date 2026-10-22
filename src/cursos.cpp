@@ -125,17 +125,11 @@ static string describirRequisito(const Curso cursos[], int numCursos, const Curs
 // Recorre los ciclos del 1 al ultimo y, en cada uno, muestra sus cursos.
 // ---------------------------------------------------------------------
 void listarPensum(const Curso cursos[], int numCursos) {
-    // Averiguar cual es el ciclo mas alto
-    int ultimoCiclo = 0;
-    for (int i = 0; i < numCursos; i++) {
-        if (cursos[i].ciclo > ultimoCiclo) {
-            ultimoCiclo = cursos[i].ciclo;
-        }
-    }
+    int cicloMayor = ultimoCiclo(cursos, numCursos);
 
     cout << "\nPENSUM - " << NOMBRE_CARRERA << " (" << CODIGO_CARRERA << ")\n";
 
-    for (int ciclo = 1; ciclo <= ultimoCiclo; ciclo++) {
+    for (int ciclo = 1; ciclo <= cicloMayor; ciclo++) {
         cout << "\n--- Ciclo " << ciclo << " ---\n";
         cout << left << setw(8) << "Codigo" << setw(46) << "Curso"
              << setw(5) << "Cr." << "Requisito\n";
@@ -165,4 +159,44 @@ void mostrarCurso(const Curso cursos[], int numCursos, int posicion) {
          << "\n  Creditos:   " << c.creditos
          << "\n  Ciclo:      " << c.ciclo
          << "\n  Requisito:  " << describirRequisito(cursos, numCursos, c) << "\n";
+}
+
+// ---------------------------------------------------------------------
+int ultimoCiclo(const Curso cursos[], int numCursos) {
+    int mayor = 0;
+    for (int i = 0; i < numCursos; i++) {
+        if (cursos[i].ciclo > mayor) {
+            mayor = cursos[i].ciclo;
+        }
+    }
+    return mayor;
+}
+
+// ---------------------------------------------------------------------
+// Lista numerada: el usuario elige por numero en vez de escribir codigos.
+// El numero que ve el usuario (1, 2, 3...) no es la posicion real del
+// curso; por eso opciones[] guarda las posiciones reales:
+//   el usuario elige 2  ->  se devuelve opciones[1]
+// ---------------------------------------------------------------------
+int elegirCurso(const Curso cursos[], const int opciones[], int cantidad,
+                const string& titulo) {
+    cout << "\n  " << titulo << ":\n";
+
+    if (cantidad == 0) {
+        cout << "  (No hay cursos para elegir.)\n";
+        return -1;
+    }
+
+    for (int i = 0; i < cantidad; i++) {
+        const Curso& c = cursos[opciones[i]];
+        cout << "  " << right << setw(2) << (i + 1) << ". " << left
+             << setw(8) << c.codigo << c.nombre << " (ciclo " << c.ciclo << ")\n";
+    }
+    cout << "   0. Cancelar\n";
+
+    int eleccion = leerEntero("  Seleccione: ", 0, cantidad);
+    if (eleccion == 0) {
+        return -1;
+    }
+    return opciones[eleccion - 1];
 }

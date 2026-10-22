@@ -142,3 +142,27 @@ void listarEstudiantes(const Estudiante estudiantes[], int numEstudiantes) {
 
     cout << "\nTotal: " << numEstudiantes << " estudiante(s).\n";
 }
+
+// ---------------------------------------------------------------------
+// Como en la lista, la posicion i del arreglo se muestra como i + 1,
+// asi que al elegir el numero n se devuelve la posicion n - 1.
+// ---------------------------------------------------------------------
+int elegirEstudiante(const Estudiante estudiantes[], int numEstudiantes) {
+    if (numEstudiantes == 0) {
+        cout << "  No hay estudiantes registrados.\n";
+        return -1;
+    }
+
+    cout << "\n  Estudiantes:\n";
+    for (int i = 0; i < numEstudiantes; i++) {
+        cout << "  " << right << setw(2) << (i + 1) << ". " << left
+             << setw(16) << estudiantes[i].carne << estudiantes[i].nombre << "\n";
+    }
+    cout << "   0. Cancelar\n";
+
+    int eleccion = leerEntero("  Seleccione el estudiante: ", 0, numEstudiantes);
+    if (eleccion == 0) {
+        return -1;
+    }
+    return eleccion - 1;
+}

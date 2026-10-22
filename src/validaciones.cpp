@@ -6,6 +6,7 @@
 
 #include <iostream>
 #include <sstream>   // stringstream: convertir texto a numero
+#include <cstdlib>   // exit()
 
 using namespace std;
 
@@ -24,6 +25,18 @@ string recortar(const string& texto) {
 }
 
 // ---------------------------------------------------------------------
+// Lee una linea del teclado. Si la entrada se termino (Ctrl+Z en Windows,
+// Ctrl+D en Linux) ya no hay nada que leer: sin esta revision las
+// funciones de abajo volverian a preguntar para siempre.
+// ---------------------------------------------------------------------
+static void leerLinea(string& linea) {
+    if (!getline(cin, linea)) {
+        cout << "\n\nFin de la entrada. El programa se cierra.\n";
+        exit(0);
+    }
+}
+
+// ---------------------------------------------------------------------
 // Idea: se lee la linea completa como texto y se intenta convertir.
 // "12"    -> valido
 // "abc"   -> no se puede convertir
@@ -33,7 +46,7 @@ int leerEntero(const string& mensaje, int min, int max) {
     string linea;
     while (true) {
         cout << mensaje;
-        getline(cin, linea);
+        leerLinea(linea);
 
         stringstream ss(linea);
         int valor;
@@ -56,7 +69,7 @@ double leerDecimal(const string& mensaje, double min, double max) {
     string linea;
     while (true) {
         cout << mensaje;
-        getline(cin, linea);
+        leerLinea(linea);
 
         // Permitir coma decimal: "8,5" se trata como "8.5"
         for (int i = 0; i < (int)linea.length(); i++) {
@@ -86,7 +99,7 @@ string leerTexto(const string& mensaje) {
     string linea;
     while (true) {
         cout << mensaje;
-        getline(cin, linea);
+        leerLinea(linea);
         linea = recortar(linea);
 
         if (linea.empty()) {

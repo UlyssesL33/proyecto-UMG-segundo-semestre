@@ -27,3 +27,7 @@ void consultarEstudiante(const Estudiante estudiantes[], int numEstudiantes);
 
 // Opcion 4: muestra todos los estudiantes registrados en una tabla.
 void listarEstudiantes(const Estudiante estudiantes[], int numEstudiantes);
+
+// Muestra la lista numerada de estudiantes y deja elegir uno por numero.
+// Devuelve su posicion en el arreglo, o -1 si cancela o no hay estudiantes.
+int elegirEstudiante(const Estudiante estudiantes[], int numEstudiantes);
