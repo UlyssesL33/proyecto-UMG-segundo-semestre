@@ -1,0 +1,55 @@
+# Pensum Ingenieria en Sistemas - UMG (Acta 72-13, rev. 04/03/2015)
+# Formato: codigo|nombre|creditos|ciclo|prerrequisito|creditos_minimos
+#   prerrequisito = 000000 si no requiere curso
+#   creditos_minimos = 0 si no requiere creditos aprobados
+# Nombres sin tildes a proposito (compatibilidad de consola MSYS2 / Visual Studio)
+090001|Desarrollo Humano y Profesional|4|1|000000|0
+090002|Metodologia de la Investigacion|5|1|000000|0
+090003|Contabilidad I|5|1|000000|0
+090004|Introduccion a los Sistemas de Computo|5|1|000000|0
+090005|Logica de Sistemas|5|1|000000|0
+090006|Precalculo|5|2|000000|0
+090007|Algebra Lineal|5|2|000000|0
+090008|Algoritmos|5|2|000000|0
+090009|Contabilidad II|5|2|000000|0
+090010|Matematica Discreta|5|2|000000|0
+090011|Fisica I|5|3|090006|0
+090012|Programacion I|5|3|090008|0
+090013|Calculo I|5|3|090006|0
+090014|Proceso Administrativo|4|3|000000|0
+090015|Derecho Informatico|5|3|000000|0
+090016|Microeconomia|5|4|000000|0
+090017|Programacion II|5|4|090012|0
+090018|Calculo II|5|4|090013|0
+090019|Estadistica I|5|4|000000|0
+090020|Fisica II|5|4|090011|0
+090021|Metodos Numericos|5|5|000000|70
+090022|Programacion III|5|5|090017|0
+090023|Emprendedores de Negocios|5|5|000000|0
+090024|Electronica Analogica|5|5|090020|0
+090025|Estadistica II|5|5|090019|0
+090026|Investigacion de Operaciones|5|6|000000|80
+090027|Bases de Datos I|5|6|090022|0
+090028|Automatas y Lenguajes Formales|5|6|000000|80
+090029|Sistemas Operativos I|5|6|000000|80
+090030|Electronica Digital|5|6|090024|0
+090031|Bases de Datos II|5|7|090027|0
+090032|Analisis de Sistemas I|5|7|000000|100
+090033|Sistemas Operativos II|5|7|090029|0
+090034|Arquitectura de Computadoras I|5|7|000000|100
+090035|Compiladores|5|7|090028|0
+090036|Desarrollo Web|5|8|090031|0
+090037|Analisis de Sistemas II|5|8|090032|0
+090038|Redes de Computadoras I|5|8|000000|125
+090039|Etica Profesional|4|8|000000|100
+090040|Arquitectura de Computadoras II|5|8|090034|0
+090041|Administracion de Tecnologias de Informacion|5|9|000000|150
+090042|Ingenieria de Software|5|9|000000|150
+090043|Proyecto de Graduacion I|6|9|000000|150
+090044|Redes de Computadoras II|5|9|090038|0
+090045|Inteligencia Artificial|5|9|000000|150
+090046|Telecomunicaciones|5|10|000000|175
+090047|Seminario de Tecnologias de Informacion|6|10|000000|175
+090048|Aseguramiento de la Calidad de Software|5|10|000000|175
+090049|Proyecto de Graduacion II|6|10|090043|0
+090050|Seguridad y Auditoria de Sistemas|5|10|000000|175

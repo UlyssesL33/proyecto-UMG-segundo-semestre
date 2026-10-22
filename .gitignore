@@ -66,3 +66,16 @@ vcpkg_installed/
 # test output & cache
 Testing/
 .cache/
+
+# Visual Studio Community (companeros)
+.vs/
+x64/
+x86/
+Debug/
+Release/
+*.suo
+*.user
+*.vcxproj.filters
+
+# VS Code + MSYS2
+.vscode/
