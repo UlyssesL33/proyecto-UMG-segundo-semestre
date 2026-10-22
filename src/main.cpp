@@ -14,6 +14,7 @@
 #include "modelos.h"       // struct Curso y struct Estudiante
 #include "validaciones.h"  // leerEntero, leerDecimal, leerTexto, leerCarne
 #include "cursos.h"        // cargarPensum, buscarCurso, listarPensum
+#include "estudiantes.h"   // registrarEstudiante, buscarEstudiante
 
 using namespace std;
 
@@ -24,6 +25,9 @@ using namespace std;
 // ---------------------------------------------------------------------
 Curso cursos[MAX_CURSOS];
 int   numCursos = 0;
+
+Estudiante estudiantes[MAX_ESTUDIANTES];
+int        numEstudiantes = 0;
 
 // Limpia la consola. Se usa solo desde aqui para que, si algun dia
 // hay que cambiar el comando, se cambie en un unico lugar.
@@ -37,23 +41,6 @@ void pausar() {
     cout << "\nPresione Enter para continuar...";
     string basura;
     getline(cin, basura);
-}
-
-// ---------------------------------------------------------------------
-// TEMPORAL (paso 3): prueba de las validaciones desde la opcion 1.
-// En el paso 5 se reemplaza por el registro real de estudiantes.
-// ---------------------------------------------------------------------
-void probarValidaciones() {
-    cout << "\n--- Prueba de validaciones ---\n";
-    string carne  = leerCarne("Carne (ej. 0900-26-9368): ");
-    string nombre = leerTexto("Nombre completo: ");
-    double p2     = leerDecimal("Puntos del Parcial 2 (0 a 20): ", 0, PUNTOS_MAXIMOS[PARCIAL_2]);
-
-    cout << "\nDatos validos recibidos:\n";
-    cout << "  Carne:     " << carne << "\n";
-    cout << "  Carrera:   " << carne.substr(0, 4) << " - " << NOMBRE_CARRERA << "\n";
-    cout << "  Nombre:    " << nombre << "\n";
-    cout << "  Parcial 2: " << p2 << " / " << PUNTOS_MAXIMOS[PARCIAL_2] << "\n";
 }
 
 // ---------------------------------------------------------------------
@@ -125,7 +112,7 @@ int main() {
         opcion = leerEntero("Seleccione una opcion: ", 0, 11);
 
         switch (opcion) {
-            case 1:  probarValidaciones();                                       break;
+            case 1:  registrarEstudiante(estudiantes, numEstudiantes);           break;
             case 2:  cout << "\n[Inscribir curso / notas] En construccion.\n";    break;
             case 3:  cout << "\n[Consultar estudiante] En construccion.\n";       break;
             case 4:  cout << "\n[Listar estudiantes] En construccion.\n";         break;
