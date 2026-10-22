@@ -15,6 +15,7 @@
 #include "validaciones.h"  // leerEntero, leerDecimal, leerTexto, leerCarne
 #include "cursos.h"        // cargarPensum, buscarCurso, listarPensum
 #include "estudiantes.h"   // registrar, buscar, consultar y listar estudiantes
+#include "archivos.h"      // guardarEstudiantes, cargarEstudiantes
 
 using namespace std;
 
@@ -64,6 +65,18 @@ void menuPensum() {
     }
 }
 
+// ---------------------------------------------------------------------
+// Opcion 10 (y al salir): guarda los estudiantes en el archivo.
+// ---------------------------------------------------------------------
+void guardarInformacion() {
+    if (guardarEstudiantes(estudiantes, numEstudiantes, cursos, numCursos, RUTA_ESTUDIANTES)) {
+        cout << "\n  Informacion guardada en " << RUTA_ESTUDIANTES
+             << " (" << numEstudiantes << " estudiante(s)).\n";
+    } else {
+        cout << "\n  Error: no se pudo escribir " << RUTA_ESTUDIANTES << ".\n";
+    }
+}
+
 void mostrarMenu() {
     cout << "=============================================\n";
     cout << "   CONTROL ACADEMICO - ING. EN SISTEMAS UMG\n";
@@ -99,6 +112,17 @@ int main() {
 
     cout << "Pensum cargado: " << numCursos << " cursos, "
          << totalCreditosPensum(cursos, numCursos) << " creditos.\n";
+
+    // Estudiantes guardados en una sesion anterior. Si el archivo no
+    // existe todavia (primera vez), simplemente se empieza sin estudiantes.
+    numEstudiantes = cargarEstudiantes(estudiantes, cursos, numCursos, RUTA_ESTUDIANTES);
+
+    if (numEstudiantes == -1) {
+        numEstudiantes = 0;
+        cout << "No hay estudiantes guardados todavia (" << RUTA_ESTUDIANTES << " no existe).\n";
+    } else {
+        cout << "Estudiantes cargados: " << numEstudiantes << ".\n";
+    }
     pausar();
 
     int opcion;
@@ -121,9 +145,15 @@ int main() {
             case 7:  cout << "\n[Estadisticas] En construccion.\n";               break;
             case 8:  cout << "\n[Analisis matricial] En construccion.\n";         break;
             case 9:  cout << "\n[Arbol y cursos habilitados] En construccion.\n"; break;
-            case 10: cout << "\n[Guardar informacion] En construccion.\n";        break;
+            case 10: guardarInformacion();                                       break;
             case 11: menuPensum();                                               break;
-            case 0:  cout << "\nSaliendo del programa. Hasta pronto.\n";          break;
+            case 0:
+                // Evita perder lo registrado si se olvido la opcion 10
+                if (leerEntero("\nGuardar antes de salir? (1 = Si, 0 = No): ", 0, 1) == 1) {
+                    guardarInformacion();
+                }
+                cout << "\nSaliendo del programa. Hasta pronto.\n";
+                break;
             default: break;  // no deberia pasar: leerEntero ya valido 0-11
         }
 

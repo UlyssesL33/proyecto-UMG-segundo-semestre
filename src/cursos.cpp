@@ -3,50 +3,14 @@
 // =====================================================================
 #include "cursos.h"
 #include "config.h"
-#include "validaciones.h"   // recortar()
+#include "validaciones.h"   // recortar, partirLinea, textoAEntero
 
 #include <iostream>
 #include <fstream>   // ifstream: leer archivos
-#include <sstream>   // stringstream: convertir texto a numero
+#include <sstream>   // stringstream: armar el texto del requisito
 #include <iomanip>   // setw: alinear columnas
 
 using namespace std;
-
-// ---------------------------------------------------------------------
-// Funciones auxiliares (solo se usan dentro de este archivo)
-// ---------------------------------------------------------------------
-
-// Parte una linea por el caracter '|' y guarda cada pedazo en campos[].
-// Devuelve cuantos campos encontro.
-// Ejemplo: "090008|Algoritmos|5|2|000000|0"
-//   -> campos = {"090008", "Algoritmos", "5", "2", "000000", "0"} -> 6
-static int partirLinea(const string& linea, string campos[], int maxCampos) {
-    int cantidad = 0;
-    int inicio = 0;
-
-    while (cantidad < maxCampos) {
-        int barra = (int)linea.find('|', inicio);
-
-        if (barra == (int)string::npos) {
-            // Ultimo campo: desde inicio hasta el final de la linea
-            campos[cantidad] = recortar(linea.substr(inicio));
-            cantidad++;
-            break;
-        }
-
-        campos[cantidad] = recortar(linea.substr(inicio, barra - inicio));
-        cantidad++;
-        inicio = barra + 1;
-    }
-    return cantidad;
-}
-
-// Convierte texto a entero. Devuelve false si el texto no es un numero.
-static bool textoAEntero(const string& texto, int& resultado) {
-    stringstream ss(texto);
-    char sobrante;
-    return (ss >> resultado) && !(ss >> sobrante);
-}
 
 // ---------------------------------------------------------------------
 // Lee datos/pensum.txt linea por linea.

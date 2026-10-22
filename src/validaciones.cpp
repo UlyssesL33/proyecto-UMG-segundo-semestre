@@ -145,3 +145,45 @@ string leerCarne(const string& mensaje) {
         }
     }
 }
+
+// =====================================================================
+// Utilidades para leer archivos
+// =====================================================================
+
+// ---------------------------------------------------------------------
+// Busca cada '|' con find y corta el texto entre barras con substr.
+// ---------------------------------------------------------------------
+int partirLinea(const string& linea, string campos[], int maxCampos) {
+    int cantidad = 0;
+    int inicio = 0;
+
+    while (cantidad < maxCampos) {
+        int barra = (int)linea.find('|', inicio);
+
+        if (barra == (int)string::npos) {
+            // Ultimo campo: desde inicio hasta el final de la linea
+            campos[cantidad] = recortar(linea.substr(inicio));
+            cantidad++;
+            break;
+        }
+
+        campos[cantidad] = recortar(linea.substr(inicio, barra - inicio));
+        cantidad++;
+        inicio = barra + 1;
+    }
+    return cantidad;
+}
+
+// ---------------------------------------------------------------------
+bool textoAEntero(const string& texto, int& resultado) {
+    stringstream ss(texto);
+    char sobrante;
+    return (ss >> resultado) && !(ss >> sobrante);
+}
+
+// ---------------------------------------------------------------------
+bool textoADecimal(const string& texto, double& resultado) {
+    stringstream ss(texto);
+    char sobrante;
+    return (ss >> resultado) && !(ss >> sobrante);
+}

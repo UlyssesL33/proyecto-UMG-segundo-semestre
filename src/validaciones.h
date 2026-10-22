@@ -29,3 +29,14 @@ bool formatoCarneValido(const std::string& carne);
 
 // Pide un carne con formato valido y que sea de la carrera 0900.
 std::string leerCarne(const std::string& mensaje);
+
+// ---------- Utilidades para leer archivos ----------
+
+// Parte una linea por el caracter '|' y guarda cada pedazo en campos[].
+// Devuelve cuantos campos encontro.
+// "090008|Algoritmos|5" -> campos = {"090008", "Algoritmos", "5"} -> 3
+int partirLinea(const std::string& linea, std::string campos[], int maxCampos);
+
+// Convierten texto a numero. Devuelven false si el texto no es un numero.
+bool textoAEntero(const std::string& texto, int& resultado);
+bool textoADecimal(const std::string& texto, double& resultado);
