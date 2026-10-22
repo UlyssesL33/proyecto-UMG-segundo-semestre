@@ -1,3 +1,5 @@
+main.cpp
+
 do { ... } while (opcion != 0) es el menú repetitivo que pide Algoritmos. 
 Se usa do-while y no while porque el menú debe mostrarse al menos una vez.
 
