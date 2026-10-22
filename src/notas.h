@@ -8,6 +8,7 @@
 // =====================================================================
 #pragma once
 
+#include <string>
 #include "modelos.h"
 
 // ---------- Calculos sobre un curso de un estudiante ----------
@@ -31,6 +32,10 @@ int creditosAprobados(const Estudiante& e, const Curso cursos[], int numCursos);
 
 // Texto del estado: "Aprobado", "En curso", ...
 const char* textoEstado(int estado);
+
+// El texto del estado con su color: verde aprobado, rojo reprobado,
+// amarillo en curso. "ancho" rellena con espacios (0 = sin relleno).
+std::string estadoConColor(int estado, int ancho);
 
 // ---------- Pantallas ----------
 

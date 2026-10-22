@@ -6,6 +6,7 @@
 #include "validaciones.h"   // recortar, partirLinea, textoAEntero, formatoCarneValido
 #include "cursos.h"         // buscarCurso
 #include "estudiantes.h"    // inicializarEstudiante, buscarEstudiante
+#include "pantalla.h"       // mensajeAviso
 
 #include <iostream>
 #include <fstream>   // ofstream (escribir) e ifstream (leer)
@@ -84,17 +85,17 @@ int cargarEstudiantes(Estudiante estudiantes[],
         // ---------------- Linea de estudiante ----------------
         if (campos[0] == "E") {
             if (n != 4 || !formatoCarneValido(campos[1]) || campos[2].empty()) {
-                cout << "Aviso: linea " << numeroLinea << " de estudiantes mal escrita, se ignora.\n";
+                mensajeAviso("Linea " + to_string(numeroLinea) + " de estudiantes mal escrita, se ignora.");
                 continue;
             }
             if (buscarEstudiante(estudiantes, numEstudiantes, campos[1]) != -1) {
-                cout << "Aviso: linea " << numeroLinea << ": carne " << campos[1]
-                     << " repetido, se ignora.\n";
+                mensajeAviso("Linea " + to_string(numeroLinea) + ": carne " + campos[1]
+                             + " repetido, se ignora.");
                 continue;
             }
             if (numEstudiantes == MAX_ESTUDIANTES) {
-                cout << "Aviso: el archivo tiene mas de " << MAX_ESTUDIANTES
-                     << " estudiantes; se ignoran los demas.\n";
+                mensajeAviso("El archivo tiene mas de " + to_string(MAX_ESTUDIANTES)
+                             + " estudiantes; se ignoran los demas.");
                 break;
             }
 
@@ -126,7 +127,7 @@ int cargarEstudiantes(Estudiante estudiantes[],
             }
 
             if (!valida) {
-                cout << "Aviso: linea " << numeroLinea << " de cursos mal escrita, se ignora.\n";
+                mensajeAviso("Linea " + to_string(numeroLinea) + " de cursos mal escrita, se ignora.");
                 continue;
             }
 
@@ -136,7 +137,7 @@ int cargarEstudiantes(Estudiante estudiantes[],
             }
         }
         else {
-            cout << "Aviso: linea " << numeroLinea << " de estudiantes no reconocida, se ignora.\n";
+            mensajeAviso("Linea " + to_string(numeroLinea) + " de estudiantes no reconocida, se ignora.");
         }
     }
 

@@ -3,6 +3,7 @@
 // =====================================================================
 #include "validaciones.h"
 #include "config.h"
+#include "pantalla.h"   // mensajeError
 
 #include <iostream>
 #include <sstream>   // stringstream: convertir texto a numero
@@ -24,6 +25,13 @@ string recortar(const string& texto) {
     return texto.substr(inicio, fin - inicio + 1);
 }
 
+// Convierte un numero a texto sin ceros de sobra: 20 -> "20", 12.5 -> "12.5"
+static string numeroATexto(double valor) {
+    stringstream ss;
+    ss << valor;
+    return ss.str();
+}
+
 // ---------------------------------------------------------------------
 // Lee una linea del teclado. Si la entrada se termino (Ctrl+Z en Windows,
 // Ctrl+D en Linux) ya no hay nada que leer: sin esta revision las
@@ -31,7 +39,8 @@ string recortar(const string& texto) {
 // ---------------------------------------------------------------------
 static void leerLinea(string& linea) {
     if (!getline(cin, linea)) {
-        cout << "\n\nFin de la entrada. El programa se cierra.\n";
+        cout << "\n\n";
+        mensajeAviso("Fin de la entrada. El programa se cierra.");
         exit(0);
     }
 }
@@ -55,9 +64,9 @@ int leerEntero(const string& mensaje, int min, int max) {
         bool esNumero = (ss >> valor) && !(ss >> sobrante);
 
         if (!esNumero) {
-            cout << "  Error: debe ingresar un numero entero.\n";
+            mensajeError("Debe ingresar un numero entero.");
         } else if (valor < min || valor > max) {
-            cout << "  Error: el valor debe estar entre " << min << " y " << max << ".\n";
+            mensajeError("El valor debe estar entre " + numeroATexto(min) + " y " + numeroATexto(max) + ".");
         } else {
             return valor;
         }
@@ -85,9 +94,9 @@ double leerDecimal(const string& mensaje, double min, double max) {
         bool esNumero = (ss >> valor) && !(ss >> sobrante);
 
         if (!esNumero) {
-            cout << "  Error: debe ingresar un numero (puede llevar decimales).\n";
+            mensajeError("Debe ingresar un numero (puede llevar decimales).");
         } else if (valor < min || valor > max) {
-            cout << "  Error: el valor debe estar entre " << min << " y " << max << ".\n";
+            mensajeError("El valor debe estar entre " + numeroATexto(min) + " y " + numeroATexto(max) + ".");
         } else {
             return valor;
         }
@@ -103,9 +112,9 @@ string leerTexto(const string& mensaje) {
         linea = recortar(linea);
 
         if (linea.empty()) {
-            cout << "  Error: el dato no puede quedar vacio.\n";
+            mensajeError("El dato no puede quedar vacio.");
         } else if (linea.find('|') != string::npos) {
-            cout << "  Error: el caracter '|' no esta permitido.\n";
+            mensajeError("El caracter '|' no esta permitido.");
         } else {
             return linea;
         }
@@ -149,10 +158,9 @@ string leerCarne(const string& mensaje) {
         string carne = leerTexto(mensaje);
 
         if (!formatoCarneValido(carne)) {
-            cout << "  Error: formato invalido. Ejemplo: " << CODIGO_CARRERA << "-26-9368\n";
+            mensajeError("Formato invalido. Ejemplo: " + CODIGO_CARRERA + "-26-9368");
         } else if (carne.substr(0, 4) != CODIGO_CARRERA) {
-            cout << "  Error: el carne debe ser de " << NOMBRE_CARRERA
-                 << " (empieza con " << CODIGO_CARRERA << ").\n";
+            mensajeError("El carne debe ser de " + NOMBRE_CARRERA + " (empieza con " + CODIGO_CARRERA + ").");
         } else {
             return carne;
         }

@@ -2,16 +2,16 @@
 // Control Academico - Ingenieria en Sistemas UMG
 // Proyecto integrador: Algoritmos, Algebra Lineal y Matematica Discreta
 // ---------------------------------------------------------------------
-// Menu principal. Las opciones que dicen "En construccion" se iran
-// llenando paso a paso segun el roadmap del equipo.
+// Menu principal. Las opciones marcadas "(pendiente)" se iran llenando
+// paso a paso segun el roadmap del equipo.
 // =====================================================================
 
 #include <iostream>
 #include <string>
-#include <cstdlib>   // system()
 
 #include "config.h"        // constantes (NOTA_MINIMA, MAX_CURSOS, ...)
 #include "modelos.h"       // struct Curso y struct Estudiante
+#include "pantalla.h"      // encabezado, colores, mensajes, pausar
 #include "validaciones.h"  // leerEntero, leerDecimal, leerTexto, leerCarne
 #include "cursos.h"        // cargarPensum, buscarCurso, listarPensum
 #include "estudiantes.h"   // registrar, buscar, consultar y listar estudiantes
@@ -31,35 +31,40 @@ int   numCursos = 0;
 Estudiante estudiantes[MAX_ESTUDIANTES];
 int        numEstudiantes = 0;
 
-// Limpia la consola. Se usa solo desde aqui para que, si algun dia
-// hay que cambiar el comando, se cambie en un unico lugar.
-void limpiarPantalla() {
-    system("cls");
-}
-
-// Detiene el programa hasta que el usuario presione Enter,
-// para que alcance a leer el resultado antes de volver al menu.
-void pausar() {
-    cout << "\nPresione Enter para continuar...";
-    string basura;
-    getline(cin, basura);
-}
+// Nombre de cada opcion del menu, en la posicion de su numero.
+// Se usa en el menu y en el encabezado de cada pantalla.
+const int NUM_OPCIONES = 12;
+const string NOMBRES_OPCION[NUM_OPCIONES] = {
+    "Salir",                                  // 0
+    "Registrar estudiante",                   // 1
+    "Cursos y notas de un estudiante",        // 2
+    "Consultar estudiante (por carne)",       // 3
+    "Listar estudiantes",                     // 4
+    "Modificar estudiante",                   // 5
+    "Eliminar estudiante",                    // 6
+    "Estadisticas",                           // 7
+    "Analisis matricial (Algebra Lineal)",    // 8
+    "Arbol y cursos habilitados (Discreta)",  // 9
+    "Guardar informacion",                    // 10
+    "Ver pensum"                              // 11
+};
 
 // ---------------------------------------------------------------------
 // Opcion 11: consultar el pensum completo o un curso por su codigo.
 // ---------------------------------------------------------------------
 void menuPensum() {
-    cout << "\n1. Ver pensum completo por ciclo\n";
-    cout << "2. Buscar curso por codigo\n";
-    int sub = leerEntero("Seleccione: ", 1, 2);
+    opcionMenu(1, "Ver pensum completo por ciclo");
+    opcionMenu(2, "Buscar curso por codigo");
+    opcionMenu(0, "Regresar");
+    int sub = leerEntero("\n  Seleccione: ", 0, 2);
 
     if (sub == 1) {
         listarPensum(cursos, numCursos);
-    } else {
-        string codigo = leerTexto("Codigo del curso (ej. 090008): ");
+    } else if (sub == 2) {
+        string codigo = leerTexto("  Codigo del curso (ej. 090008): ");
         int pos = buscarCurso(cursos, numCursos, codigo);
         if (pos == -1) {
-            cout << "  No existe un curso con codigo " << codigo << ".\n";
+            mensajeError("No existe un curso con codigo " + codigo + ".");
         } else {
             mostrarCurso(cursos, numCursos, pos);
         }
@@ -71,94 +76,123 @@ void menuPensum() {
 // ---------------------------------------------------------------------
 void guardarInformacion() {
     if (guardarEstudiantes(estudiantes, numEstudiantes, cursos, numCursos, RUTA_ESTUDIANTES)) {
-        cout << "\n  Informacion guardada en " << RUTA_ESTUDIANTES
-             << " (" << numEstudiantes << " estudiante(s)).\n";
+        mensajeExito("Informacion guardada en " + RUTA_ESTUDIANTES + " ("
+                     + to_string(numEstudiantes) + " estudiante(s)).");
     } else {
-        cout << "\n  Error: no se pudo escribir " << RUTA_ESTUDIANTES << ".\n";
+        mensajeError("No se pudo escribir " + RUTA_ESTUDIANTES + ".");
     }
+}
+
+// Opcion que todavia no esta hecha: se muestra en gris en el menu.
+void opcionPendiente(int numero) {
+    opcionMenu(numero, NOMBRES_OPCION[numero] + pintar("  (pendiente)", GRIS));
 }
 
 void mostrarMenu() {
-    cout << "=============================================\n";
-    cout << "   CONTROL ACADEMICO - ING. EN SISTEMAS UMG\n";
-    cout << "=============================================\n";
-    cout << " 1. Registrar estudiante\n";
-    cout << " 2. Inscribir curso / ingresar notas\n";
-    cout << " 3. Consultar estudiante (por carne)\n";
-    cout << " 4. Listar estudiantes (global o por curso)\n";
-    cout << " 5. Modificar estudiante\n";
-    cout << " 6. Eliminar estudiante\n";
-    cout << " 7. Estadisticas\n";
-    cout << " 8. Analisis matricial        (Algebra)\n";
-    cout << " 9. Arbol y cursos habilitados (Discreta)\n";
-    cout << "10. Guardar informacion\n";
-    cout << "11. Ver pensum\n";
-    cout << " 0. Salir\n";
-    cout << "---------------------------------------------\n";
+    encabezado("Menu principal");
+
+    cout << pintar("  Estudiantes: ", GRIS) << numEstudiantes
+         << pintar("    Cursos del pensum: ", GRIS) << numCursos
+         << pintar("    Nota minima: ", GRIS) << NOTA_MINIMA << "\n";
+
+    grupoMenu("ESTUDIANTES");
+    opcionMenu(1, NOMBRES_OPCION[1]);
+    opcionMenu(2, NOMBRES_OPCION[2]);
+    opcionMenu(3, NOMBRES_OPCION[3]);
+    opcionMenu(4, NOMBRES_OPCION[4]);
+    opcionPendiente(5);
+    opcionPendiente(6);
+
+    grupoMenu("REPORTES Y ANALISIS");
+    opcionPendiente(7);
+    opcionPendiente(8);
+    opcionPendiente(9);
+
+    grupoMenu("SISTEMA");
+    opcionMenu(10, NOMBRES_OPCION[10]);
+    opcionMenu(11, NOMBRES_OPCION[11]);
+    opcionMenu(0,  NOMBRES_OPCION[0]);
+    cout << "\n";
+    separador();
 }
 
-int main() {
-    // Sin pensum el programa no puede funcionar: se carga antes del menu.
+// ---------------------------------------------------------------------
+// Carga el pensum y los estudiantes guardados.
+// Devuelve false si el programa no puede continuar (no hay pensum).
+// ---------------------------------------------------------------------
+bool cargarDatos() {
+    encabezado("Inicio");
+
+    // Sin pensum el programa no puede funcionar.
     numCursos = cargarPensum(cursos, RUTA_PENSUM);
 
     if (numCursos == -1) {
-        cout << "Error: no se encontro el archivo " << RUTA_PENSUM << "\n";
-        cout << "Ejecute el programa desde la carpeta raiz del proyecto.\n";
-        return 1;
+        mensajeError("No se encontro el archivo " + RUTA_PENSUM + ".");
+        mensajeAviso("Ejecute el programa desde la carpeta raiz del proyecto.");
+        return false;
     }
     if (numCursos == 0) {
-        cout << "Error: el archivo " << RUTA_PENSUM << " no tiene cursos validos.\n";
-        return 1;
+        mensajeError("El archivo " + RUTA_PENSUM + " no tiene cursos validos.");
+        return false;
     }
+    mensajeExito("Pensum cargado: " + to_string(numCursos) + " cursos, "
+                 + to_string(totalCreditosPensum(cursos, numCursos)) + " creditos.");
 
-    cout << "Pensum cargado: " << numCursos << " cursos, "
-         << totalCreditosPensum(cursos, numCursos) << " creditos.\n";
-
-    // Estudiantes guardados en una sesion anterior. Si el archivo no
-    // existe todavia (primera vez), simplemente se empieza sin estudiantes.
+    // Estudiantes de una sesion anterior. Si el archivo no existe todavia
+    // (primera vez), simplemente se empieza sin estudiantes.
     numEstudiantes = cargarEstudiantes(estudiantes, cursos, numCursos, RUTA_ESTUDIANTES);
 
     if (numEstudiantes == -1) {
         numEstudiantes = 0;
-        cout << "No hay estudiantes guardados todavia (" << RUTA_ESTUDIANTES << " no existe).\n";
+        mensajeAviso("No hay estudiantes guardados todavia.");
     } else {
-        cout << "Estudiantes cargados: " << numEstudiantes << ".\n";
+        mensajeExito("Estudiantes cargados: " + to_string(numEstudiantes) + ".");
+    }
+    return true;
+}
+
+int main() {
+    iniciarConsola();   // activa los colores en Windows
+
+    if (!cargarDatos()) {
+        pausar();
+        return 1;
     }
     pausar();
 
     int opcion;
 
     do {
-        limpiarPantalla();
         mostrarMenu();
 
         // leerEntero vuelve a preguntar si se escriben letras o un numero
         // fuera de 0-11, asi que aqui opcion siempre es valida.
-        opcion = leerEntero("Seleccione una opcion: ", 0, 11);
+        opcion = leerEntero("  Seleccione una opcion: ", 0, NUM_OPCIONES - 1);
+
+        // Cada opcion se abre en una pantalla limpia con su propio titulo
+        encabezado("Menu principal > " + NOMBRES_OPCION[opcion]);
 
         switch (opcion) {
-            case 1:  registrarEstudiante(estudiantes, numEstudiantes);           break;
+            case 1:  registrarEstudiante(estudiantes, numEstudiantes);                break;
             case 2:  menuCursosYNotas(estudiantes, numEstudiantes, cursos, numCursos); break;
-            case 3:  consultarEstudiante(estudiantes, numEstudiantes);           break;
-            case 4:  listarEstudiantes(estudiantes, numEstudiantes);             break;
-            case 5:  cout << "\n[Modificar estudiante] En construccion.\n";       break;
-            case 6:  cout << "\n[Eliminar estudiante] En construccion.\n";        break;
-            case 7:  cout << "\n[Estadisticas] En construccion.\n";               break;
-            case 8:  cout << "\n[Analisis matricial] En construccion.\n";         break;
-            case 9:  cout << "\n[Arbol y cursos habilitados] En construccion.\n"; break;
-            case 10: guardarInformacion();                                       break;
-            case 11: menuPensum();                                               break;
+            case 3:  consultarEstudiante(estudiantes, numEstudiantes);                break;
+            case 4:  listarEstudiantes(estudiantes, numEstudiantes);                  break;
+            case 10: guardarInformacion();                                            break;
+            case 11: menuPensum();                                                    break;
             case 0:
                 // Evita perder lo registrado si se olvido la opcion 10
-                if (leerEntero("\nGuardar antes de salir? (1 = Si, 0 = No): ", 0, 1) == 1) {
+                if (leerEntero("  Guardar antes de salir? (1 = Si, 0 = No): ", 0, 1) == 1) {
                     guardarInformacion();
                 }
-                cout << "\nSaliendo del programa. Hasta pronto.\n";
+                cout << "\n  Hasta pronto.\n";
                 break;
-            default: break;  // no deberia pasar: leerEntero ya valido 0-11
+            default:
+                mensajeAviso("Esta opcion todavia esta en construccion.");
+                break;
         }
 
-        if (opcion != 0) {
+        // El submenu de la opcion 2 ya hace sus propias pausas
+        if (opcion != 0 && opcion != 2) {
             pausar();
         }
 

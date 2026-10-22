@@ -4,11 +4,11 @@
 #include "cursos.h"
 #include "config.h"
 #include "validaciones.h"   // recortar, partirLinea, textoAEntero
+#include "pantalla.h"
 
 #include <iostream>
 #include <fstream>   // ifstream: leer archivos
 #include <sstream>   // stringstream: armar el texto del requisito
-#include <iomanip>   // setw: alinear columnas
 
 using namespace std;
 
@@ -40,8 +40,8 @@ int cargarPensum(Curso cursos[], const string& ruta) {
         }
 
         if (numCursos == MAX_CURSOS) {
-            cout << "Aviso: el pensum tiene mas de " << MAX_CURSOS
-                 << " cursos; se ignoran los demas.\n";
+            mensajeAviso("El pensum tiene mas de " + to_string(MAX_CURSOS)
+                         + " cursos; se ignoran los demas.");
             break;
         }
 
@@ -54,7 +54,7 @@ int cargarPensum(Curso cursos[], const string& ruta) {
                    && textoAEntero(campos[5], c.creditosMinimos);
 
         if (!valida) {
-            cout << "Aviso: linea " << numeroLinea << " del pensum mal escrita, se ignora.\n";
+            mensajeAviso("Linea " + to_string(numeroLinea) + " del pensum mal escrita, se ignora.");
             continue;
         }
 
@@ -72,8 +72,8 @@ int cargarPensum(Curso cursos[], const string& ruta) {
     for (int i = 0; i < numCursos; i++) {
         string req = cursos[i].prerrequisito;
         if (req != SIN_PRERREQUISITO && buscarCurso(cursos, numCursos, req) == -1) {
-            cout << "Aviso: el prerrequisito " << req << " de " << cursos[i].codigo
-                 << " no existe en el pensum.\n";
+            mensajeAviso("El prerrequisito " + req + " de " + cursos[i].codigo
+                         + " no existe en el pensum.");
         }
     }
 
@@ -127,38 +127,40 @@ static string describirRequisito(const Curso cursos[], int numCursos, const Curs
 void listarPensum(const Curso cursos[], int numCursos) {
     int cicloMayor = ultimoCiclo(cursos, numCursos);
 
-    cout << "\nPENSUM - " << NOMBRE_CARRERA << " (" << CODIGO_CARRERA << ")\n";
-
     for (int ciclo = 1; ciclo <= cicloMayor; ciclo++) {
-        cout << "\n--- Ciclo " << ciclo << " ---\n";
-        cout << left << setw(8) << "Codigo" << setw(46) << "Curso"
-             << setw(5) << "Cr." << "Requisito\n";
-
         int creditosCiclo = 0;
         for (int i = 0; i < numCursos; i++) {
             if (cursos[i].ciclo == ciclo) {
-                cout << left << setw(8) << cursos[i].codigo
-                     << setw(46) << cursos[i].nombre
-                     << setw(5) << cursos[i].creditos
-                     << describirRequisito(cursos, numCursos, cursos[i]) << "\n";
                 creditosCiclo += cursos[i].creditos;
             }
         }
-        cout << "Creditos del ciclo: " << creditosCiclo << "\n";
+
+        subtitulo("Ciclo " + to_string(ciclo) + pintar("   (" + to_string(creditosCiclo) + " creditos)", GRIS));
+        cout << pintar("  " + columna("Codigo", 8) + columna("Curso", 46)
+                       + columna("Cr.", 5) + "Requisito", GRIS) << "\n";
+
+        for (int i = 0; i < numCursos; i++) {
+            if (cursos[i].ciclo == ciclo) {
+                cout << "  " << columna(cursos[i].codigo, 8)
+                     << columna(cursos[i].nombre, 46)
+                     << columna(to_string(cursos[i].creditos), 5)
+                     << describirRequisito(cursos, numCursos, cursos[i]) << "\n";
+            }
+        }
     }
 
-    cout << "\nTotal: " << numCursos << " cursos, "
-         << totalCreditosPensum(cursos, numCursos) << " creditos.\n";
+    cout << "\n" << pintar("  Total: ", GRIS) << numCursos << " cursos, "
+         << totalCreditosPensum(cursos, numCursos) << " creditos\n";
 }
 
 // ---------------------------------------------------------------------
 void mostrarCurso(const Curso cursos[], int numCursos, int posicion) {
     const Curso& c = cursos[posicion];
-    cout << "\n  Codigo:     " << c.codigo
-         << "\n  Nombre:     " << c.nombre
-         << "\n  Creditos:   " << c.creditos
-         << "\n  Ciclo:      " << c.ciclo
-         << "\n  Requisito:  " << describirRequisito(cursos, numCursos, c) << "\n";
+    cout << "\n" << pintar("  Codigo:     ", GRIS) << c.codigo << "\n"
+         << pintar("  Nombre:     ", GRIS) << c.nombre << "\n"
+         << pintar("  Creditos:   ", GRIS) << c.creditos << "\n"
+         << pintar("  Ciclo:      ", GRIS) << c.ciclo << "\n"
+         << pintar("  Requisito:  ", GRIS) << describirRequisito(cursos, numCursos, c) << "\n";
 }
 
 // ---------------------------------------------------------------------
@@ -180,21 +182,21 @@ int ultimoCiclo(const Curso cursos[], int numCursos) {
 // ---------------------------------------------------------------------
 int elegirCurso(const Curso cursos[], const int opciones[], int cantidad,
                 const string& titulo) {
-    cout << "\n  " << titulo << ":\n";
+    subtitulo(titulo + ":");
 
     if (cantidad == 0) {
-        cout << "  (No hay cursos para elegir.)\n";
+        mensajeAviso("No hay cursos para elegir.");
         return -1;
     }
 
     for (int i = 0; i < cantidad; i++) {
         const Curso& c = cursos[opciones[i]];
-        cout << "  " << right << setw(2) << (i + 1) << ". " << left
-             << setw(8) << c.codigo << c.nombre << " (ciclo " << c.ciclo << ")\n";
+        opcionMenu(i + 1, columna(c.codigo, 8) + columna(c.nombre, 46)
+                          + pintar("ciclo " + to_string(c.ciclo), GRIS));
     }
-    cout << "   0. Cancelar\n";
+    opcionMenu(0, "Cancelar");
 
-    int eleccion = leerEntero("  Seleccione: ", 0, cantidad);
+    int eleccion = leerEntero("\n  Seleccione: ", 0, cantidad);
     if (eleccion == 0) {
         return -1;
     }

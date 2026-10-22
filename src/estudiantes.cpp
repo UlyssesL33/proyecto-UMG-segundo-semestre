@@ -4,9 +4,9 @@
 #include "estudiantes.h"
 #include "config.h"
 #include "validaciones.h"
+#include "pantalla.h"
 
 #include <iostream>
-#include <iomanip>   // setw: alinear columnas
 
 using namespace std;
 
@@ -51,24 +51,22 @@ int buscarEstudiante(const Estudiante estudiantes[], int numEstudiantes,
 //   6. Guardar en la siguiente posicion libre y aumentar el contador.
 // ---------------------------------------------------------------------
 bool registrarEstudiante(Estudiante estudiantes[], int& numEstudiantes) {
-    cout << "\n--- Registrar estudiante ---\n";
-
     if (numEstudiantes >= MAX_ESTUDIANTES) {
-        cout << "  No hay espacio: ya hay " << MAX_ESTUDIANTES << " estudiantes registrados.\n";
+        mensajeError("No hay espacio: ya hay " + to_string(MAX_ESTUDIANTES) + " estudiantes registrados.");
         return false;
     }
 
-    string carne = leerCarne("Carne (ej. 0900-26-9368): ");
+    string carne = leerCarne("  Carne (ej. 0900-26-9368): ");
 
     if (buscarEstudiante(estudiantes, numEstudiantes, carne) != -1) {
-        cout << "  Error: el carne " << carne << " ya esta registrado.\n";
+        mensajeError("El carne " + carne + " ya esta registrado.");
         return false;
     }
 
     Estudiante nuevo;
     inicializarEstudiante(nuevo);
     nuevo.carne   = carne;
-    nuevo.nombre  = leerTexto("Nombre completo: ");
+    nuevo.nombre  = leerTexto("  Nombre completo: ");
     nuevo.carrera = carne.substr(0, 4);
 
     // La siguiente posicion libre es justamente numEstudiantes:
@@ -76,11 +74,9 @@ bool registrarEstudiante(Estudiante estudiantes[], int& numEstudiantes) {
     estudiantes[numEstudiantes] = nuevo;
     numEstudiantes++;
 
-    cout << "\n  Estudiante registrado:\n";
-    cout << "    Carne:   " << nuevo.carne << "\n";
-    cout << "    Nombre:  " << nuevo.nombre << "\n";
-    cout << "    Carrera: " << nuevo.carrera << " - " << NOMBRE_CARRERA << "\n";
-    cout << "  Total de estudiantes: " << numEstudiantes << "\n";
+    cout << "\n";
+    mensajeExito("Estudiante registrado (" + to_string(numEstudiantes) + " en total).");
+    mostrarEstudiante(nuevo);
     return true;
 }
 
@@ -89,9 +85,9 @@ bool registrarEstudiante(Estudiante estudiantes[], int& numEstudiantes) {
 // notas y promedio.
 // ---------------------------------------------------------------------
 void mostrarEstudiante(const Estudiante& e) {
-    cout << "\n  Carne:   " << e.carne;
-    cout << "\n  Nombre:  " << e.nombre;
-    cout << "\n  Carrera: " << e.carrera << " - " << NOMBRE_CARRERA << "\n";
+    cout << "\n" << pintar("  Carne:   ", GRIS) << e.carne << "\n";
+    cout << pintar("  Nombre:  ", GRIS) << e.nombre << "\n";
+    cout << pintar("  Carrera: ", GRIS) << e.carrera << " - " << NOMBRE_CARRERA << "\n";
 }
 
 // ---------------------------------------------------------------------
@@ -101,18 +97,16 @@ void mostrarEstudiante(const Estudiante& e) {
 //   3. Mostrar la ficha, o avisar que no existe.
 // ---------------------------------------------------------------------
 void consultarEstudiante(const Estudiante estudiantes[], int numEstudiantes) {
-    cout << "\n--- Consultar estudiante ---\n";
-
     if (numEstudiantes == 0) {
-        cout << "  No hay estudiantes registrados.\n";
+        mensajeAviso("No hay estudiantes registrados.");
         return;
     }
 
-    string carne = leerCarne("Carne a buscar: ");
+    string carne = leerCarne("  Carne a buscar: ");
     int pos = buscarEstudiante(estudiantes, numEstudiantes, carne);
 
     if (pos == -1) {
-        cout << "  No existe un estudiante con carne " << carne << ".\n";
+        mensajeError("No existe un estudiante con carne " + carne + ".");
     } else {
         mostrarEstudiante(estudiantes[pos]);
     }
@@ -123,24 +117,22 @@ void consultarEstudiante(const Estudiante estudiantes[], int numEstudiantes) {
 // estudiante. Solo se recorren las posiciones ocupadas, nunca las 100.
 // ---------------------------------------------------------------------
 void listarEstudiantes(const Estudiante estudiantes[], int numEstudiantes) {
-    cout << "\n--- Listado de estudiantes ---\n";
-
     if (numEstudiantes == 0) {
-        cout << "  No hay estudiantes registrados.\n";
+        mensajeAviso("No hay estudiantes registrados.");
         return;
     }
 
-    cout << left << setw(5) << "No." << setw(16) << "Carne"
-         << setw(36) << "Nombre" << "Carrera\n";
+    cout << "\n" << pintar("  " + columna("No.", 5) + columna("Carne", 16)
+                          + columna("Nombre", 36) + "Carrera", GRIS) << "\n";
 
     for (int i = 0; i < numEstudiantes; i++) {
-        cout << left << setw(5) << (i + 1)
-             << setw(16) << estudiantes[i].carne
-             << setw(36) << estudiantes[i].nombre
+        cout << "  " << columna(to_string(i + 1), 5)
+             << columna(estudiantes[i].carne, 16)
+             << columna(estudiantes[i].nombre, 36)
              << estudiantes[i].carrera << "\n";
     }
 
-    cout << "\nTotal: " << numEstudiantes << " estudiante(s).\n";
+    cout << "\n" << pintar("  Total: ", GRIS) << numEstudiantes << " estudiante(s)\n";
 }
 
 // ---------------------------------------------------------------------
@@ -149,18 +141,17 @@ void listarEstudiantes(const Estudiante estudiantes[], int numEstudiantes) {
 // ---------------------------------------------------------------------
 int elegirEstudiante(const Estudiante estudiantes[], int numEstudiantes) {
     if (numEstudiantes == 0) {
-        cout << "  No hay estudiantes registrados.\n";
+        mensajeAviso("No hay estudiantes registrados.");
         return -1;
     }
 
-    cout << "\n  Estudiantes:\n";
+    subtitulo("Elija un estudiante:");
     for (int i = 0; i < numEstudiantes; i++) {
-        cout << "  " << right << setw(2) << (i + 1) << ". " << left
-             << setw(16) << estudiantes[i].carne << estudiantes[i].nombre << "\n";
+        opcionMenu(i + 1, columna(estudiantes[i].carne, 16) + estudiantes[i].nombre);
     }
-    cout << "   0. Cancelar\n";
+    opcionMenu(0, "Cancelar");
 
-    int eleccion = leerEntero("  Seleccione el estudiante: ", 0, numEstudiantes);
+    int eleccion = leerEntero("\n  Seleccione: ", 0, numEstudiantes);
     if (eleccion == 0) {
         return -1;
     }

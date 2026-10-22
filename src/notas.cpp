@@ -6,9 +6,9 @@
 #include "validaciones.h"
 #include "cursos.h"        // elegirCurso, ultimoCiclo, totalCreditosPensum
 #include "estudiantes.h"   // elegirEstudiante
+#include "pantalla.h"
 
 #include <iostream>
-#include <iomanip>   // setw
 #include <sstream>   // stringstream: armar textos con numeros
 #include <string>
 
@@ -66,6 +66,16 @@ int creditosAprobados(const Estudiante& e, const Curso cursos[], int numCursos) 
     return total;
 }
 
+string estadoConColor(int estado, int ancho) {
+    string texto = columna(textoEstado(estado), ancho);
+    switch (estado) {
+        case APROBADO:  return pintar(texto, VERDE);
+        case REPROBADO: return pintar(texto, ROJO);
+        case EN_CURSO:  return pintar(texto, AMARILLO);
+        default:        return pintar(texto, GRIS);
+    }
+}
+
 const char* textoEstado(int estado) {
     switch (estado) {
         case EN_CURSO:  return "En curso";
@@ -93,7 +103,7 @@ static string textoPuntos(double valor) {
 static int elegirCiclo(const Curso cursos[], int numCursos) {
     int mayor = ultimoCiclo(cursos, numCursos);
     stringstream mensaje;
-    mensaje << "Ciclo (1 a " << mayor << ", 0 = cancelar): ";
+    mensaje << "  Ciclo (1 a " << mayor << ", 0 = cancelar): ";
     return leerEntero(mensaje.str(), 0, mayor);
 }
 
@@ -128,7 +138,7 @@ static double leerPuntos(int componente, double actual) {
         if (valor == SIN_CALIFICAR || valor >= 0) {
             return valor;
         }
-        cout << "  Error: use -1 o un valor desde 0.\n";
+        mensajeError("Use -1 o un valor desde 0.");
     }
 }
 
@@ -167,7 +177,8 @@ static void opcionMarcarCurso(Estudiante& e, const Curso cursos[], int numCursos
     }
 
     marcarAprobado(e, curso);
-    cout << "  " << cursos[curso].nombre << " marcado como aprobado (sin notas).\n";
+    cout << "\n";
+    mensajeExito(cursos[curso].nombre + " marcado como aprobado (sin notas).");
 }
 
 // Marca de una vez todos los cursos de un ciclo. Util para registrar
@@ -181,12 +192,12 @@ static void opcionMarcarCiclo(Estudiante& e, const Curso cursos[], int numCursos
 
     for (int c = 0; c < numCursos; c++) {
         if (cursos[c].ciclo == ciclo && marcarAprobado(e, c)) {
-            cout << "  Aprobado: " << cursos[c].codigo << " " << cursos[c].nombre << "\n";
+            mensajeExito(cursos[c].codigo + "  " + cursos[c].nombre);
             marcados++;
         }
     }
-    cout << "  Cursos marcados: " << marcados
-         << " (los que estaban aprobados o en curso no se tocan).\n";
+    cout << "\n" << pintar("  Cursos marcados: ", GRIS) << marcados
+         << pintar("  (los aprobados o en curso no se tocan)", GRIS) << "\n";
 }
 
 // =====================================================================
@@ -210,7 +221,7 @@ static void opcionInscribir(Estudiante& e, const Curso cursos[], int numCursos) 
     }
 
     if (e.estado[curso] == REPROBADO) {
-        cout << "  El curso estaba reprobado: se inscribe de nuevo y sus notas anteriores se borran.\n";
+        mensajeAviso("El curso estaba reprobado: se inscribe de nuevo y sus notas anteriores se borran.");
     }
 
     // Se guarda solo el intento mas reciente: notas en blanco
@@ -218,7 +229,8 @@ static void opcionInscribir(Estudiante& e, const Curso cursos[], int numCursos) 
     for (int k = 0; k < NUM_COMPONENTES; k++) {
         e.puntos[curso][k] = SIN_CALIFICAR;
     }
-    cout << "  Inscrito en " << cursos[curso].nombre << ".\n";
+    cout << "\n";
+    mensajeExito("Inscrito en " + cursos[curso].nombre + ".");
 }
 
 // =====================================================================
@@ -241,22 +253,22 @@ static void opcionIngresarPuntos(Estudiante& e, const Curso cursos[], int numCur
     int curso = elegirCurso(cursos, opciones, cantidad, "Cursos en curso o con notas");
     if (curso == -1) {
         if (cantidad == 0) {
-            cout << "  Primero inscriba un curso (opcion 3).\n";
+            mensajeAviso("Primero inscriba un curso (opcion 3).");
         }
         return;
     }
 
-    cout << "\n  Ingrese los puntos netos obtenidos:\n";
+    subtitulo(cursos[curso].nombre + ": puntos netos obtenidos");
     for (int k = 0; k < NUM_COMPONENTES; k++) {
         e.puntos[curso][k] = leerPuntos(k, e.puntos[curso][k]);
     }
 
     actualizarEstado(e, curso);
 
-    cout << "\n  Nota del curso: " << textoPuntos(notaCurso(e, curso)) << " / 100\n";
-    cout << "  Estado: " << textoEstado(e.estado[curso]) << "\n";
+    cout << "\n" << pintar("  Nota del curso: ", GRIS) << textoPuntos(notaCurso(e, curso)) << " / 100\n";
+    cout << pintar("  Estado:         ", GRIS) << estadoConColor(e.estado[curso], 0) << "\n";
     if (!notasCompletas(e, curso)) {
-        cout << "  (Faltan componentes por calificar; el curso sigue en curso.)\n";
+        mensajeAviso("Faltan componentes por calificar; el curso sigue en curso.");
     }
 }
 
@@ -265,10 +277,10 @@ static void opcionIngresarPuntos(Estudiante& e, const Curso cursos[], int numCur
 // =====================================================================
 
 void mostrarCursosEstudiante(const Estudiante& e, const Curso cursos[], int numCursos) {
-    cout << "\n  Cursos de " << e.nombre << ":\n";
-    cout << "  " << left << setw(8) << "Codigo" << setw(46) << "Curso"
-         << setw(5) << "P1" << setw(5) << "P2" << setw(6) << "Zona"
-         << setw(7) << "Final" << setw(7) << "Total" << "Estado\n";
+    subtitulo("Cursos de " + e.nombre);
+    cout << pintar("  " + columna("Codigo", 8) + columna("Curso", 46) + columna("P1", 5)
+                   + columna("P2", 5) + columna("Zona", 6) + columna("Final", 7)
+                   + columna("Total", 7) + "Estado", GRIS) << "\n";
 
     int llevados = 0;
     for (int c = 0; c < numCursos; c++) {
@@ -277,20 +289,20 @@ void mostrarCursosEstudiante(const Estudiante& e, const Curso cursos[], int numC
         }
         llevados++;
 
-        cout << "  " << left << setw(8) << cursos[c].codigo << setw(46) << cursos[c].nombre
-             << setw(5) << textoPuntos(e.puntos[c][PARCIAL_1])
-             << setw(5) << textoPuntos(e.puntos[c][PARCIAL_2])
-             << setw(6) << textoPuntos(e.puntos[c][ZONA])
-             << setw(7) << textoPuntos(e.puntos[c][FINAL])
-             << setw(7) << (tieneNotas(e, c) ? textoPuntos(notaCurso(e, c)) : string("-"))
-             << textoEstado(e.estado[c]) << "\n";
+        cout << "  " << columna(cursos[c].codigo, 8) << columna(cursos[c].nombre, 46)
+             << columna(textoPuntos(e.puntos[c][PARCIAL_1]), 5)
+             << columna(textoPuntos(e.puntos[c][PARCIAL_2]), 5)
+             << columna(textoPuntos(e.puntos[c][ZONA]), 6)
+             << columna(textoPuntos(e.puntos[c][FINAL]), 7)
+             << columna(tieneNotas(e, c) ? textoPuntos(notaCurso(e, c)) : string("-"), 7)
+             << estadoConColor(e.estado[c], 0) << "\n";
     }
 
     if (llevados == 0) {
-        cout << "  (No ha llevado ningun curso.)\n";
+        mensajeAviso("No ha llevado ningun curso.");
     }
 
-    cout << "\n  Creditos aprobados: " << creditosAprobados(e, cursos, numCursos)
+    cout << "\n" << pintar("  Creditos aprobados: ", GRIS) << creditosAprobados(e, cursos, numCursos)
          << " de " << totalCreditosPensum(cursos, numCursos) << "\n";
 }
 
@@ -300,8 +312,6 @@ void mostrarCursosEstudiante(const Estudiante& e, const Curso cursos[], int numC
 
 void menuCursosYNotas(Estudiante estudiantes[], int numEstudiantes,
                       const Curso cursos[], int numCursos) {
-    cout << "\n--- Cursos y notas ---\n";
-
     int pos = elegirEstudiante(estudiantes, numEstudiantes);
     if (pos == -1) {
         return;
@@ -312,14 +322,40 @@ void menuCursosYNotas(Estudiante estudiantes[], int numEstudiantes,
     int opcion;
 
     do {
-        cout << "\n=== " << e.nombre << " (" << e.carne << ") ===\n";
-        cout << "1. Marcar curso aprobado (ciclos anteriores, sin notas)\n";
-        cout << "2. Marcar aprobado un ciclo completo\n";
-        cout << "3. Inscribir curso\n";
-        cout << "4. Ingresar / actualizar puntos de un curso\n";
-        cout << "5. Ver cursos del estudiante\n";
-        cout << "0. Regresar al menu principal\n";
-        opcion = leerEntero("Seleccione: ", 0, 5);
+        // Cada vuelta del submenu empieza en una pantalla limpia
+        encabezado("Menu principal > Cursos y notas > " + e.nombre);
+
+        int enCurso = 0;
+        for (int c = 0; c < numCursos; c++) {
+            if (e.estado[c] == EN_CURSO) {
+                enCurso++;
+            }
+        }
+        cout << pintar("  Carne: ", GRIS) << e.carne
+             << pintar("    Creditos aprobados: ", GRIS) << creditosAprobados(e, cursos, numCursos)
+             << pintar("    Cursos en curso: ", GRIS) << enCurso << "\n";
+
+        grupoMenu("CICLOS ANTERIORES");
+        opcionMenu(1, "Marcar curso aprobado (sin notas)");
+        opcionMenu(2, "Marcar aprobado un ciclo completo");
+        grupoMenu("SEMESTRE ACTUAL");
+        opcionMenu(3, "Inscribir curso");
+        opcionMenu(4, "Ingresar / actualizar puntos de un curso");
+        grupoMenu("CONSULTA");
+        opcionMenu(5, "Ver cursos del estudiante");
+        opcionMenu(0, "Regresar al menu principal");
+        cout << "\n";
+        separador();
+        opcion = leerEntero("  Seleccione: ", 0, 5);
+
+        // La opcion elegida se abre en su propia pantalla limpia
+        const string NOMBRES[6] = {
+            "", "Marcar curso aprobado", "Marcar ciclo completo",
+            "Inscribir curso", "Ingresar puntos", "Ver cursos"
+        };
+        if (opcion != 0) {
+            encabezado("Menu principal > Cursos y notas > " + e.nombre + " > " + NOMBRES[opcion]);
+        }
 
         switch (opcion) {
             case 1: opcionMarcarCurso(e, cursos, numCursos);     break;
@@ -329,7 +365,9 @@ void menuCursosYNotas(Estudiante estudiantes[], int numEstudiantes,
             case 5: mostrarCursosEstudiante(e, cursos, numCursos); break;
             default: break;
         }
-    } while (opcion != 0);
 
-    cout << "\n  Recuerde guardar con la opcion 10 del menu principal.\n";
+        if (opcion != 0) {
+            pausar();   // deja leer el resultado antes de redibujar el submenu
+        }
+    } while (opcion != 0);
 }

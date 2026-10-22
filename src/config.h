@@ -51,6 +51,11 @@ const std::string NOMBRE_CARRERA = "Ingenieria en Sistemas";
 // Codigo que en pensum.txt significa "no tiene curso prerrequisito"
 const std::string SIN_PRERREQUISITO = "000000";
 
+// ---------- Pantalla ----------
+// Si una consola muestra simbolos raros como "[32m" en vez de colores,
+// cambiar a false para apagar todos los colores del programa.
+const bool USAR_COLORES = true;
+
 // ---------- Archivos ----------
 // Rutas relativas: el programa se ejecuta desde la raiz del repositorio.
 const std::string RUTA_PENSUM      = "datos/pensum.txt";
