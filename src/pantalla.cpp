@@ -6,6 +6,8 @@
 
 #include <iostream>
 #include <cstdlib>   // system()
+#include <sstream>   // stringstream
+#include <iomanip>   // fixed, setprecision
 
 #ifdef _WIN32
     #define NOMINMAX
@@ -78,6 +80,12 @@ string columna(const string& texto, int ancho) {
         return texto + " ";   // siempre deja al menos un espacio de separacion
     }
     return texto + string(ancho - texto.length(), ' ');
+}
+
+string textoDecimal(double valor, int decimales) {
+    stringstream ss;
+    ss << fixed << setprecision(decimales) << valor;
+    return ss.str();
 }
 
 // ---------------------------------------------------------------------

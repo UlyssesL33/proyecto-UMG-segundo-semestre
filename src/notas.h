@@ -1,10 +1,11 @@
 // =====================================================================
 // notas.h - Cursos de un estudiante y sus notas
 // ---------------------------------------------------------------------
-// Pasos 8, 9 y 10 del roadmap:
+// Pasos 8, 9, 10 y 11 del roadmap:
 //   8. Marcar cursos aprobados sin nota (ciclos anteriores)
 //   9. Inscribir un curso (queda "en curso")
 //  10. Ingresar los puntos netos de P1, P2, Zona y Final
+//  11. Promedio del estudiante entre sus cursos
 // =====================================================================
 #pragma once
 
@@ -29,6 +30,22 @@ void actualizarEstado(Estudiante& e, int curso);
 
 // Suma los creditos de los cursos aprobados del estudiante.
 int creditosAprobados(const Estudiante& e, const Curso cursos[], int numCursos);
+
+// Promedio del estudiante ENTRE SUS CURSOS: promedio de la nota final de
+// cada curso que ya tiene sus 4 componentes calificados. Los cursos en
+// curso (incompletos) y los aprobados sin notas no entran.
+// cursosConNota devuelve cuantos cursos se promediaron (0 = sin promedio).
+double promedioEstudiante(const Estudiante& e, int numCursos, int& cursosConNota);
+
+// El promedio como texto con color: verde si alcanza NOTA_MINIMA, rojo
+// si no, y "-" gris si no tiene cursos con nota.
+std::string promedioConColor(double promedio, int cursosConNota, int ancho);
+
+// Cuenta cuantos cursos del estudiante estan en ese estado.
+int contarCursosEnEstado(const Estudiante& e, int numCursos, int estado);
+
+// Puntos como texto: -1 -> "-", 12.5 -> "12.5", 10 -> "10"
+std::string textoPuntos(double valor);
 
 // Texto del estado: "Aprobado", "En curso", ...
 const char* textoEstado(int estado);

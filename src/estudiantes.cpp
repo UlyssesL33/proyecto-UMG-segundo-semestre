@@ -5,6 +5,8 @@
 #include "config.h"
 #include "validaciones.h"
 #include "pantalla.h"
+#include "notas.h"        // promedio, conteo de cursos, tabla de cursos
+#include "cursos.h"       // totalCreditosPensum
 
 #include <iostream>
 
@@ -81,8 +83,7 @@ bool registrarEstudiante(Estudiante estudiantes[], int& numEstudiantes) {
 }
 
 // ---------------------------------------------------------------------
-// Ficha de un estudiante. En el paso 11 se le agregan sus cursos,
-// notas y promedio.
+// Datos basicos de un estudiante.
 // ---------------------------------------------------------------------
 void mostrarEstudiante(const Estudiante& e) {
     cout << "\n" << pintar("  Carne:   ", GRIS) << e.carne << "\n";
@@ -91,12 +92,30 @@ void mostrarEstudiante(const Estudiante& e) {
 }
 
 // ---------------------------------------------------------------------
+// Resumen academico: promedio, cursos por estado y creditos.
+// ---------------------------------------------------------------------
+static void mostrarResumen(const Estudiante& e, const Curso cursos[], int numCursos) {
+    int conNota = 0;
+    double promedio = promedioEstudiante(e, numCursos, conNota);
+
+    subtitulo("Resumen");
+    cout << pintar("  Promedio:           ", GRIS) << promedioConColor(promedio, conNota, 0)
+         << pintar("  (" + to_string(conNota) + " curso(s) con nota)", GRIS) << "\n";
+    cout << pintar("  Cursos aprobados:   ", GRIS) << contarCursosEnEstado(e, numCursos, APROBADO)
+         << pintar("    Reprobados: ", GRIS) << contarCursosEnEstado(e, numCursos, REPROBADO)
+         << pintar("    En curso: ", GRIS) << contarCursosEnEstado(e, numCursos, EN_CURSO) << "\n";
+    cout << pintar("  Creditos aprobados: ", GRIS) << creditosAprobados(e, cursos, numCursos)
+         << " de " << totalCreditosPensum(cursos, numCursos) << "\n";
+}
+
+// ---------------------------------------------------------------------
 // Pasos:
 //   1. Si no hay estudiantes, no tiene sentido preguntar.
-//   2. Pedir el carne y buscarlo.
-//   3. Mostrar la ficha, o avisar que no existe.
+//   2. Pedir el carne y buscarlo (busqueda por carne, como pide Algoritmos).
+//   3. Mostrar datos, resumen y cursos, o avisar que no existe.
 // ---------------------------------------------------------------------
-void consultarEstudiante(const Estudiante estudiantes[], int numEstudiantes) {
+void consultarEstudiante(const Estudiante estudiantes[], int numEstudiantes,
+                         const Curso cursos[], int numCursos) {
     if (numEstudiantes == 0) {
         mensajeAviso("No hay estudiantes registrados.");
         return;
@@ -107,32 +126,137 @@ void consultarEstudiante(const Estudiante estudiantes[], int numEstudiantes) {
 
     if (pos == -1) {
         mensajeError("No existe un estudiante con carne " + carne + ".");
-    } else {
-        mostrarEstudiante(estudiantes[pos]);
+        return;
     }
+
+    const Estudiante& e = estudiantes[pos];
+    mostrarEstudiante(e);
+    mostrarResumen(e, cursos, numCursos);
+    mostrarCursosEstudiante(e, cursos, numCursos);
 }
 
 // ---------------------------------------------------------------------
 // Recorre el arreglo de 0 a numEstudiantes-1 y muestra una fila por
 // estudiante. Solo se recorren las posiciones ocupadas, nunca las 100.
+// La situacion global se decide con el promedio entre cursos.
 // ---------------------------------------------------------------------
-void listarEstudiantes(const Estudiante estudiantes[], int numEstudiantes) {
+void listarEstudiantes(const Estudiante estudiantes[], int numEstudiantes, int numCursos) {
     if (numEstudiantes == 0) {
         mensajeAviso("No hay estudiantes registrados.");
         return;
     }
 
-    cout << "\n" << pintar("  " + columna("No.", 5) + columna("Carne", 16)
-                          + columna("Nombre", 36) + "Carrera", GRIS) << "\n";
+    cout << "\n" << pintar("  " + columna("No.", 5) + columna("Carne", 16) + columna("Nombre", 32)
+                          + columna("Promedio", 10) + "Situacion", GRIS) << "\n";
+
+    int aprobados = 0, reprobados = 0, sinNotas = 0;
 
     for (int i = 0; i < numEstudiantes; i++) {
+        int conNota = 0;
+        double promedio = promedioEstudiante(estudiantes[i], numCursos, conNota);
+
+        string situacion;
+        if (conNota == 0) {
+            situacion = pintar("Sin notas", GRIS);
+            sinNotas++;
+        } else if (promedio >= NOTA_MINIMA) {
+            situacion = pintar("Aprobado", VERDE);
+            aprobados++;
+        } else {
+            situacion = pintar("Reprobado", ROJO);
+            reprobados++;
+        }
+
         cout << "  " << columna(to_string(i + 1), 5)
              << columna(estudiantes[i].carne, 16)
-             << columna(estudiantes[i].nombre, 36)
-             << estudiantes[i].carrera << "\n";
+             << columna(estudiantes[i].nombre, 32)
+             << promedioConColor(promedio, conNota, 10)
+             << situacion << "\n";
     }
 
-    cout << "\n" << pintar("  Total: ", GRIS) << numEstudiantes << " estudiante(s)\n";
+    cout << "\n" << pintar("  Total: ", GRIS) << numEstudiantes
+         << pintar("    Aprobados: ", GRIS) << aprobados
+         << pintar("    Reprobados: ", GRIS) << reprobados
+         << pintar("    Sin notas: ", GRIS) << sinNotas << "\n";
+    cout << pintar("  Situacion segun el promedio entre cursos (minimo "
+                   + textoDecimal(NOTA_MINIMA, 0) + ").", GRIS) << "\n";
+}
+
+// ---------------------------------------------------------------------
+// Paso 12: modificar. Las notas se corrigen en la opcion 2; aqui se
+// cambian los datos personales.
+// ---------------------------------------------------------------------
+void modificarEstudiante(Estudiante estudiantes[], int numEstudiantes) {
+    int pos = elegirEstudiante(estudiantes, numEstudiantes);
+    if (pos == -1) {
+        return;
+    }
+
+    Estudiante& e = estudiantes[pos];   // referencia: se modifica el original
+    mostrarEstudiante(e);
+
+    subtitulo("Que desea modificar?");
+    opcionMenu(1, "Nombre");
+    opcionMenu(2, "Carne");
+    opcionMenu(0, "Cancelar");
+    cout << pintar("  (Las notas se corrigen en la opcion 2 del menu principal.)", GRIS) << "\n";
+    int opcion = leerEntero("\n  Seleccione: ", 0, 2);
+
+    if (opcion == 1) {
+        e.nombre = leerTexto("  Nuevo nombre: ");
+        mensajeExito("Nombre actualizado.");
+    } else if (opcion == 2) {
+        string nuevo = leerCarne("  Nuevo carne: ");
+        int otro = buscarEstudiante(estudiantes, numEstudiantes, nuevo);
+
+        // El carne debe seguir siendo unico (puede repetirse el suyo propio)
+        if (otro != -1 && otro != pos) {
+            mensajeError("El carne " + nuevo + " ya pertenece a " + estudiantes[otro].nombre + ".");
+            return;
+        }
+        e.carne   = nuevo;
+        e.carrera = nuevo.substr(0, 4);
+        mensajeExito("Carne actualizado.");
+    } else {
+        return;
+    }
+
+    mostrarEstudiante(e);
+}
+
+// ---------------------------------------------------------------------
+// Paso 12: eliminar.
+// Para no dejar un "hueco" en el arreglo, cada estudiante que esta
+// despues del eliminado se recorre una posicion hacia atras:
+//
+//   antes:  [Ana] [Luis] [Eva] [Juan]     eliminar Luis (posicion 1)
+//   despues:[Ana] [Eva] [Juan]            numEstudiantes: 4 -> 3
+// ---------------------------------------------------------------------
+void eliminarEstudiante(Estudiante estudiantes[], int& numEstudiantes,
+                        const Curso cursos[], int numCursos) {
+    int pos = elegirEstudiante(estudiantes, numEstudiantes);
+    if (pos == -1) {
+        return;
+    }
+
+    mostrarEstudiante(estudiantes[pos]);
+    mostrarResumen(estudiantes[pos], cursos, numCursos);
+
+    cout << "\n";
+    mensajeAviso("Se eliminaran el estudiante y todas sus notas.");
+    if (leerEntero("  Confirma la eliminacion? (1 = Si, 0 = No): ", 0, 1) == 0) {
+        mensajeAviso("Eliminacion cancelada.");
+        return;
+    }
+
+    string nombre = estudiantes[pos].nombre;
+
+    for (int i = pos; i < numEstudiantes - 1; i++) {
+        estudiantes[i] = estudiantes[i + 1];
+    }
+    numEstudiantes--;
+
+    mensajeExito(nombre + " eliminado. Quedan " + to_string(numEstudiantes) + " estudiante(s).");
 }
 
 // ---------------------------------------------------------------------

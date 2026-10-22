@@ -17,6 +17,7 @@
 #include "estudiantes.h"   // registrar, buscar, consultar y listar estudiantes
 #include "archivos.h"      // guardarEstudiantes, cargarEstudiantes
 #include "notas.h"         // inscribir cursos e ingresar notas
+#include "estadisticas.h"  // listado por curso y estadisticas
 
 using namespace std;
 
@@ -39,7 +40,7 @@ const string NOMBRES_OPCION[NUM_OPCIONES] = {
     "Registrar estudiante",                   // 1
     "Cursos y notas de un estudiante",        // 2
     "Consultar estudiante (por carne)",       // 3
-    "Listar estudiantes",                     // 4
+    "Listar estudiantes (global o por curso)",// 4
     "Modificar estudiante",                   // 5
     "Eliminar estudiante",                    // 6
     "Estadisticas",                           // 7
@@ -72,6 +73,22 @@ void menuPensum() {
 }
 
 // ---------------------------------------------------------------------
+// Opcion 4: listado global (por promedio) o por curso (por nota).
+// ---------------------------------------------------------------------
+void menuListar() {
+    opcionMenu(1, "Global: todos los estudiantes con su promedio");
+    opcionMenu(2, "Por curso: estudiantes y notas de un curso");
+    opcionMenu(0, "Regresar");
+    int sub = leerEntero("\n  Seleccione: ", 0, 2);
+
+    if (sub == 1) {
+        listarEstudiantes(estudiantes, numEstudiantes, numCursos);
+    } else if (sub == 2) {
+        listarPorCurso(estudiantes, numEstudiantes, cursos, numCursos);
+    }
+}
+
+// ---------------------------------------------------------------------
 // Opcion 10 (y al salir): guarda los estudiantes en el archivo.
 // ---------------------------------------------------------------------
 void guardarInformacion() {
@@ -100,11 +117,11 @@ void mostrarMenu() {
     opcionMenu(2, NOMBRES_OPCION[2]);
     opcionMenu(3, NOMBRES_OPCION[3]);
     opcionMenu(4, NOMBRES_OPCION[4]);
-    opcionPendiente(5);
-    opcionPendiente(6);
+    opcionMenu(5, NOMBRES_OPCION[5]);
+    opcionMenu(6, NOMBRES_OPCION[6]);
 
     grupoMenu("REPORTES Y ANALISIS");
-    opcionPendiente(7);
+    opcionMenu(7, NOMBRES_OPCION[7]);
     opcionPendiente(8);
     opcionPendiente(9);
 
@@ -175,8 +192,11 @@ int main() {
         switch (opcion) {
             case 1:  registrarEstudiante(estudiantes, numEstudiantes);                break;
             case 2:  menuCursosYNotas(estudiantes, numEstudiantes, cursos, numCursos); break;
-            case 3:  consultarEstudiante(estudiantes, numEstudiantes);                break;
-            case 4:  listarEstudiantes(estudiantes, numEstudiantes);                  break;
+            case 3:  consultarEstudiante(estudiantes, numEstudiantes, cursos, numCursos); break;
+            case 4:  menuListar();                                                    break;
+            case 5:  modificarEstudiante(estudiantes, numEstudiantes);                break;
+            case 6:  eliminarEstudiante(estudiantes, numEstudiantes, cursos, numCursos); break;
+            case 7:  mostrarEstadisticas(estudiantes, numEstudiantes, cursos, numCursos); break;
             case 10: guardarInformacion();                                            break;
             case 11: menuPensum();                                                    break;
             case 0:

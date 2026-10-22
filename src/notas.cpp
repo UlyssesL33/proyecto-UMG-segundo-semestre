@@ -76,6 +76,46 @@ string estadoConColor(int estado, int ancho) {
     }
 }
 
+// ---------------------------------------------------------------------
+// Ejemplo: Algoritmos 85 y Matematica Discreta 37 (completos), Algebra
+// Lineal en curso con 8 puntos.  ->  (85 + 37) / 2 = 61, cursosConNota = 2
+// Algebra no entra porque todavia le faltan componentes.
+// ---------------------------------------------------------------------
+double promedioEstudiante(const Estudiante& e, int numCursos, int& cursosConNota) {
+    double suma = 0;
+    cursosConNota = 0;
+
+    for (int c = 0; c < numCursos; c++) {
+        if (notasCompletas(e, c)) {
+            suma += notaCurso(e, c);
+            cursosConNota++;
+        }
+    }
+
+    if (cursosConNota == 0) {
+        return 0;   // no hay cursos con nota: no se puede dividir entre 0
+    }
+    return suma / cursosConNota;
+}
+
+string promedioConColor(double promedio, int cursosConNota, int ancho) {
+    if (cursosConNota == 0) {
+        return pintar(columna("-", ancho), GRIS);
+    }
+    string texto = columna(textoDecimal(promedio, 2), ancho);
+    return pintar(texto, promedio >= NOTA_MINIMA ? VERDE : ROJO);
+}
+
+int contarCursosEnEstado(const Estudiante& e, int numCursos, int estado) {
+    int cantidad = 0;
+    for (int c = 0; c < numCursos; c++) {
+        if (e.estado[c] == estado) {
+            cantidad++;
+        }
+    }
+    return cantidad;
+}
+
 const char* textoEstado(int estado) {
     switch (estado) {
         case EN_CURSO:  return "En curso";
@@ -90,7 +130,7 @@ const char* textoEstado(int estado) {
 // =====================================================================
 
 // Convierte unos puntos a texto: -1 -> "-", 12.5 -> "12.5", 10 -> "10"
-static string textoPuntos(double valor) {
+string textoPuntos(double valor) {
     if (valor == SIN_CALIFICAR) {
         return "-";
     }
@@ -302,8 +342,6 @@ void mostrarCursosEstudiante(const Estudiante& e, const Curso cursos[], int numC
         mensajeAviso("No ha llevado ningun curso.");
     }
 
-    cout << "\n" << pintar("  Creditos aprobados: ", GRIS) << creditosAprobados(e, cursos, numCursos)
-         << " de " << totalCreditosPensum(cursos, numCursos) << "\n";
 }
 
 // =====================================================================
@@ -325,12 +363,7 @@ void menuCursosYNotas(Estudiante estudiantes[], int numEstudiantes,
         // Cada vuelta del submenu empieza en una pantalla limpia
         encabezado("Menu principal > Cursos y notas > " + e.nombre);
 
-        int enCurso = 0;
-        for (int c = 0; c < numCursos; c++) {
-            if (e.estado[c] == EN_CURSO) {
-                enCurso++;
-            }
-        }
+        int enCurso = contarCursosEnEstado(e, numCursos, EN_CURSO);
         cout << pintar("  Carne: ", GRIS) << e.carne
              << pintar("    Creditos aprobados: ", GRIS) << creditosAprobados(e, cursos, numCursos)
              << pintar("    Cursos en curso: ", GRIS) << enCurso << "\n";

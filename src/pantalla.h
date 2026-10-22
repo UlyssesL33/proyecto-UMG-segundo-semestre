@@ -40,6 +40,9 @@ std::string pintar(const std::string& texto, Color color);
 // pintar sin desalinear la tabla:  pintar(columna("Aprobado", 10), VERDE)
 std::string columna(const std::string& texto, int ancho);
 
+// Numero con una cantidad fija de decimales: textoDecimal(61, 2) -> "61.00"
+std::string textoDecimal(double valor, int decimales);
+
 // Limpia la pantalla y dibuja el encabezado del programa con la ruta
 // de la seccion actual. Ej: encabezado("Cursos y notas > Ulises Lopez")
 void encabezado(const std::string& seccion);
