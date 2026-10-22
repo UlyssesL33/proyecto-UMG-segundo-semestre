@@ -2,17 +2,17 @@
 // Control Academico - Ingenieria en Sistemas UMG
 // Proyecto integrador: Algoritmos, Algebra Lineal y Matematica Discreta
 // ---------------------------------------------------------------------
-// Paso 1: esqueleto del menu principal.
-// Cada opcion todavia muestra "En construccion"; se iran llenando
-// paso a paso segun el roadmap del equipo.
+// Menu principal. Las opciones que dicen "En construccion" se iran
+// llenando paso a paso segun el roadmap del equipo.
 // =====================================================================
 
 #include <iostream>
+#include <string>
 #include <cstdlib>   // system()
-#include <limits>    // numeric_limits, para limpiar el buffer de entrada
 
-#include "config.h"   // constantes (NOTA_MINIMA, MAX_CURSOS, ...)
-#include "modelos.h"  // struct Curso y struct Estudiante
+#include "config.h"        // constantes (NOTA_MINIMA, MAX_CURSOS, ...)
+#include "modelos.h"       // struct Curso y struct Estudiante
+#include "validaciones.h"  // leerEntero, leerDecimal, leerTexto, leerCarne
 
 using namespace std;
 
@@ -26,7 +26,25 @@ void limpiarPantalla() {
 // para que alcance a leer el resultado antes de volver al menu.
 void pausar() {
     cout << "\nPresione Enter para continuar...";
-    cin.ignore(numeric_limits<streamsize>::max(), '\n');
+    string basura;
+    getline(cin, basura);
+}
+
+// ---------------------------------------------------------------------
+// TEMPORAL (paso 3): prueba de las validaciones desde la opcion 1.
+// En el paso 5 se reemplaza por el registro real de estudiantes.
+// ---------------------------------------------------------------------
+void probarValidaciones() {
+    cout << "\n--- Prueba de validaciones ---\n";
+    string carne  = leerCarne("Carne (ej. 0900-26-9368): ");
+    string nombre = leerTexto("Nombre completo: ");
+    double p2     = leerDecimal("Puntos del Parcial 2 (0 a 20): ", 0, PUNTOS_MAXIMOS[PARCIAL_2]);
+
+    cout << "\nDatos validos recibidos:\n";
+    cout << "  Carne:     " << carne << "\n";
+    cout << "  Carrera:   " << carne.substr(0, 4) << " - " << NOMBRE_CARRERA << "\n";
+    cout << "  Nombre:    " << nombre << "\n";
+    cout << "  Parcial 2: " << p2 << " / " << PUNTOS_MAXIMOS[PARCIAL_2] << "\n";
 }
 
 void mostrarMenu() {
@@ -45,7 +63,6 @@ void mostrarMenu() {
     cout << "10. Guardar informacion\n";
     cout << " 0. Salir\n";
     cout << "---------------------------------------------\n";
-    cout << "Seleccione una opcion: ";
 }
 
 int main() {
@@ -55,19 +72,12 @@ int main() {
         limpiarPantalla();
         mostrarMenu();
 
-        cin >> opcion;
-
-        // Si el usuario escribe letras, cin queda en estado de error y el
-        // menu se repetiria para siempre. Esto lo evita por ahora; en el
-        // paso 3 se reemplaza por la funcion leerEntero().
-        if (cin.fail()) {
-            cin.clear();
-            opcion = -1;
-        }
-        cin.ignore(numeric_limits<streamsize>::max(), '\n');
+        // leerEntero vuelve a preguntar si se escriben letras o un numero
+        // fuera de 0-10, asi que aqui opcion siempre es valida.
+        opcion = leerEntero("Seleccione una opcion: ", 0, 10);
 
         switch (opcion) {
-            case 1:  cout << "\n[Registrar estudiante] En construccion.\n";       break;
+            case 1:  probarValidaciones();                                       break;
             case 2:  cout << "\n[Inscribir curso / notas] En construccion.\n";    break;
             case 3:  cout << "\n[Consultar estudiante] En construccion.\n";       break;
             case 4:  cout << "\n[Listar estudiantes] En construccion.\n";         break;
@@ -78,7 +88,7 @@ int main() {
             case 9:  cout << "\n[Arbol y cursos habilitados] En construccion.\n"; break;
             case 10: cout << "\n[Guardar informacion] En construccion.\n";        break;
             case 0:  cout << "\nSaliendo del programa. Hasta pronto.\n";          break;
-            default: cout << "\nOpcion invalida. Intente de nuevo.\n";           break;
+            default: break;  // no deberia pasar: leerEntero ya valido 0-10
         }
 
         if (opcion != 0) {
