@@ -2,8 +2,7 @@
 // Control Academico - Ingenieria en Sistemas UMG
 // Proyecto integrador: Algoritmos, Algebra Lineal y Matematica Discreta
 // ---------------------------------------------------------------------
-// Menu principal. Las opciones marcadas "(pendiente)" se iran llenando
-// paso a paso segun el roadmap del equipo.
+// Menu principal: cada opcion llama a la funcion de su modulo.
 // =====================================================================
 
 #include <iostream>
@@ -19,6 +18,7 @@
 #include "notas.h"         // inscribir cursos e ingresar notas
 #include "estadisticas.h"  // listado por curso y estadisticas
 #include "discreta.h"      // conjuntos, logica y arboles
+#include "algebra.h"       // matrices y ecuaciones
 
 using namespace std;
 
@@ -45,7 +45,7 @@ const string NOMBRES_OPCION[NUM_OPCIONES] = {
     "Modificar estudiante",                   // 5
     "Eliminar estudiante",                    // 6
     "Estadisticas",                           // 7
-    "Analisis matricial (Algebra Lineal)",    // 8
+    "Algebra Lineal",                         // 8
     "Matematica Discreta",                    // 9
     "Guardar informacion",                    // 10
     "Ver pensum"                              // 11
@@ -101,11 +101,6 @@ void guardarInformacion() {
     }
 }
 
-// Opcion que todavia no esta hecha: se muestra en gris en el menu.
-void opcionPendiente(int numero) {
-    opcionMenu(numero, NOMBRES_OPCION[numero] + pintar("  (pendiente)", GRIS));
-}
-
 void mostrarMenu() {
     encabezado("Menu principal");
 
@@ -123,7 +118,7 @@ void mostrarMenu() {
 
     grupoMenu("REPORTES Y ANALISIS");
     opcionMenu(7, NOMBRES_OPCION[7]);
-    opcionPendiente(8);
+    opcionMenu(8, NOMBRES_OPCION[8] + pintar("       (matrices y ecuaciones)", GRIS));
     opcionMenu(9, NOMBRES_OPCION[9] + pintar("  (conjuntos, logica, arboles)", GRIS));
 
     grupoMenu("SISTEMA");
@@ -198,6 +193,7 @@ int main() {
             case 5:  modificarEstudiante(estudiantes, numEstudiantes);                break;
             case 6:  eliminarEstudiante(estudiantes, numEstudiantes, cursos, numCursos); break;
             case 7:  mostrarEstadisticas(estudiantes, numEstudiantes, cursos, numCursos); break;
+            case 8:  menuAlgebra(estudiantes, numEstudiantes, cursos, numCursos);     break;
             case 9:  menuDiscreta(estudiantes, numEstudiantes, cursos, numCursos);    break;
             case 10: guardarInformacion();                                            break;
             case 11: menuPensum();                                                    break;
@@ -209,12 +205,11 @@ int main() {
                 cout << "\n  Hasta pronto.\n";
                 break;
             default:
-                mensajeAviso("Esta opcion todavia esta en construccion.");
-                break;
+                break;   // no deberia pasar: leerEntero ya valido 0-11
         }
 
-        // Los submenus de las opciones 2 y 9 ya hacen sus propias pausas
-        if (opcion != 0 && opcion != 2 && opcion != 9) {
+        // Los submenus de las opciones 2, 8 y 9 ya hacen sus propias pausas
+        if (opcion != 0 && opcion != 2 && opcion != 8 && opcion != 9) {
             pausar();
         }
 
