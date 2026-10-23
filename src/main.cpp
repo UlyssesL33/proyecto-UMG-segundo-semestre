@@ -18,6 +18,7 @@
 #include "archivos.h"      // guardarEstudiantes, cargarEstudiantes
 #include "notas.h"         // inscribir cursos e ingresar notas
 #include "estadisticas.h"  // listado por curso y estadisticas
+#include "discreta.h"      // conjuntos, logica y arboles
 
 using namespace std;
 
@@ -45,7 +46,7 @@ const string NOMBRES_OPCION[NUM_OPCIONES] = {
     "Eliminar estudiante",                    // 6
     "Estadisticas",                           // 7
     "Analisis matricial (Algebra Lineal)",    // 8
-    "Arbol y cursos habilitados (Discreta)",  // 9
+    "Matematica Discreta",                    // 9
     "Guardar informacion",                    // 10
     "Ver pensum"                              // 11
 };
@@ -123,7 +124,7 @@ void mostrarMenu() {
     grupoMenu("REPORTES Y ANALISIS");
     opcionMenu(7, NOMBRES_OPCION[7]);
     opcionPendiente(8);
-    opcionPendiente(9);
+    opcionMenu(9, NOMBRES_OPCION[9] + pintar("  (conjuntos, logica, arboles)", GRIS));
 
     grupoMenu("SISTEMA");
     opcionMenu(10, NOMBRES_OPCION[10]);
@@ -197,6 +198,7 @@ int main() {
             case 5:  modificarEstudiante(estudiantes, numEstudiantes);                break;
             case 6:  eliminarEstudiante(estudiantes, numEstudiantes, cursos, numCursos); break;
             case 7:  mostrarEstadisticas(estudiantes, numEstudiantes, cursos, numCursos); break;
+            case 9:  menuDiscreta(estudiantes, numEstudiantes, cursos, numCursos);    break;
             case 10: guardarInformacion();                                            break;
             case 11: menuPensum();                                                    break;
             case 0:
@@ -211,8 +213,8 @@ int main() {
                 break;
         }
 
-        // El submenu de la opcion 2 ya hace sus propias pausas
-        if (opcion != 0 && opcion != 2) {
+        // Los submenus de las opciones 2 y 9 ya hacen sus propias pausas
+        if (opcion != 0 && opcion != 2 && opcion != 9) {
             pausar();
         }
 

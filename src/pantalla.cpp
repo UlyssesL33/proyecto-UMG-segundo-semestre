@@ -128,6 +128,14 @@ void separador() {
     cout << pintar(string(ANCHO, '-'), GRIS) << "\n";
 }
 
+void concepto(const string& titulo) {
+    cout << "\n  " << pintar("+-- CONCEPTO: ", GRIS) << pintar(titulo, CIAN) << "\n";
+}
+
+void lineaConcepto(const string& texto) {
+    cout << "  " << pintar("|  ", GRIS) << texto << "\n";
+}
+
 void mensajeExito(const string& texto) {
     cout << "  " << pintar("[OK] " + texto, VERDE) << "\n";
 }

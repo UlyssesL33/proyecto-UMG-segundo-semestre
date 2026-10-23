@@ -59,6 +59,13 @@ void grupoMenu(const std::string& texto);
 // Linea separadora.
 void separador();
 
+// Recuadro breve que explica el concepto matematico que se esta usando:
+//   concepto("Diferencia de conjuntos");
+//   lineaConcepto("P = S - A");
+//   lineaConcepto("Cursos del pensum que NO estan en Aprobados.");
+void concepto(const std::string& titulo);
+void lineaConcepto(const std::string& texto);
+
 // Mensajes con su simbolo y color.
 void mensajeExito(const std::string& texto);   // [OK] verde
 void mensajeError(const std::string& texto);   // [X]  rojo

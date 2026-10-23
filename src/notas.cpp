@@ -7,6 +7,8 @@
 #include "cursos.h"        // elegirCurso, ultimoCiclo, totalCreditosPensum
 #include "estudiantes.h"   // elegirEstudiante
 #include "pantalla.h"
+#include "logica.h"        // estaHabilitado (paso 16)
+#include "arboles.h"       // hijosDe (para quitar un curso)
 
 #include <iostream>
 #include <sstream>   // stringstream: armar textos con numeros
@@ -147,17 +149,26 @@ static int elegirCiclo(const Curso cursos[], int numCursos) {
     return leerEntero(mensaje.str(), 0, mayor);
 }
 
-// Llena opciones[] con los cursos de un ciclo que el estudiante todavia
-// no ha aprobado ni esta llevando (no cursados o reprobados).
-// Devuelve cuantos encontro.
-static int cursosPendientesDelCiclo(const Estudiante& e, const Curso cursos[], int numCursos,
-                                    int ciclo, int opciones[]) {
+// Llena opciones[] con los cursos HABILITADOS de un ciclo (paso 16).
+// "ocultos" devuelve cuantos cursos pendientes del ciclo no se muestran
+// porque todavia no cumplen la regla (les falta prerrequisito o creditos).
+static int cursosHabilitadosDelCiclo(const Estudiante& e, const Curso cursos[], int numCursos,
+                                     int ciclo, int opciones[], int& ocultos) {
     int cantidad = 0;
+    ocultos = 0;
     for (int c = 0; c < numCursos; c++) {
+        if (cursos[c].ciclo != ciclo) {
+            continue;
+        }
         bool pendiente = (e.estado[c] == NO_CURSADO || e.estado[c] == REPROBADO);
-        if (cursos[c].ciclo == ciclo && pendiente) {
+        if (!pendiente) {
+            continue;
+        }
+        if (estaHabilitado(e, cursos, numCursos, c)) {
             opciones[cantidad] = c;
             cantidad++;
+        } else {
+            ocultos++;
         }
     }
     return cantidad;
@@ -210,8 +221,13 @@ static void opcionMarcarCurso(Estudiante& e, const Curso cursos[], int numCursos
     }
 
     int opciones[MAX_CURSOS];
-    int cantidad = cursosPendientesDelCiclo(e, cursos, numCursos, ciclo, opciones);
-    int curso = elegirCurso(cursos, opciones, cantidad, "Cursos sin aprobar del ciclo");
+    int ocultos = 0;
+    int cantidad = cursosHabilitadosDelCiclo(e, cursos, numCursos, ciclo, opciones, ocultos);
+    if (ocultos > 0) {
+        mensajeAviso(to_string(ocultos) + " curso(s) del ciclo no aparecen: aun no estan habilitados.");
+        cout << pintar("  Marque los ciclos en orden (1, 2, 3...) para cumplir los prerrequisitos.", GRIS) << "\n";
+    }
+    int curso = elegirCurso(cursos, opciones, cantidad, "Cursos habilitados del ciclo");
     if (curso == -1) {
         return;
     }
@@ -231,9 +247,19 @@ static void opcionMarcarCiclo(Estudiante& e, const Curso cursos[], int numCursos
     int marcados = 0;
 
     for (int c = 0; c < numCursos; c++) {
-        if (cursos[c].ciclo == ciclo && marcarAprobado(e, c)) {
+        if (cursos[c].ciclo != ciclo) {
+            continue;
+        }
+        bool pendiente = (e.estado[c] == NO_CURSADO || e.estado[c] == REPROBADO);
+        if (!pendiente) {
+            continue;   // aprobados o en curso no se tocan
+        }
+        // Paso 16: solo se aprueba lo que esta habilitado
+        if (estaHabilitado(e, cursos, numCursos, c) && marcarAprobado(e, c)) {
             mensajeExito(cursos[c].codigo + "  " + cursos[c].nombre);
             marcados++;
+        } else {
+            mensajeAviso(cursos[c].codigo + "  " + cursos[c].nombre + "  (no habilitado: falta prerrequisito o creditos)");
         }
     }
     cout << "\n" << pintar("  Cursos marcados: ", GRIS) << marcados
@@ -244,18 +270,23 @@ static void opcionMarcarCiclo(Estudiante& e, const Curso cursos[], int numCursos
 // Paso 9: inscribir un curso
 // =====================================================================
 
-// Por ahora muestra los cursos pendientes del ciclo elegido.
-// En el paso 16 esta lista se cambia por los cursos HABILITADOS
-// (prerrequisito aprobado y creditos minimos cumplidos).
+// Paso 16: solo se listan los cursos del conjunto H (habilitados), es
+// decir, los que cumplen  p AND q AND r AND s  (ver logica.h).
 static void opcionInscribir(Estudiante& e, const Curso cursos[], int numCursos) {
-    int ciclo = elegirCiclo(cursos, numCursos);
-    if (ciclo == 0) {
-        return;
+    int opciones[MAX_CURSOS];
+    int cantidad = 0;
+    for (int c = 0; c < numCursos; c++) {
+        if (estaHabilitado(e, cursos, numCursos, c)) {
+            opciones[cantidad] = c;
+            cantidad++;
+        }
     }
 
-    int opciones[MAX_CURSOS];
-    int cantidad = cursosPendientesDelCiclo(e, cursos, numCursos, ciclo, opciones);
-    int curso = elegirCurso(cursos, opciones, cantidad, "Cursos que puede inscribir del ciclo");
+    concepto("Solo aparecen los cursos HABILITADOS (conjunto H)");
+    lineaConcepto("habilitado(c) = no aprobado AND no en curso AND prerrequisito aprobado");
+    lineaConcepto("                AND creditos suficientes.   Detalle: opcion 9 > 3.");
+
+    int curso = elegirCurso(cursos, opciones, cantidad, "Cursos que puede inscribir");
     if (curso == -1) {
         return;
     }
@@ -271,6 +302,69 @@ static void opcionInscribir(Estudiante& e, const Curso cursos[], int numCursos) 
     }
     cout << "\n";
     mensajeExito("Inscrito en " + cursos[curso].nombre + ".");
+}
+
+// =====================================================================
+// Quitar un curso: retirar uno en curso, o deshacer un aprobado o
+// reprobado registrado por error. El curso vuelve a "no cursado".
+//
+// No se permite si dejaria datos incoherentes:
+//   - otro curso que depende de este (un hijo en el arbol) ya fue llevado
+//   - otro curso llevado pide un minimo de creditos que ya no se cumpliria
+// =====================================================================
+
+static void opcionQuitarCurso(Estudiante& e, const Curso cursos[], int numCursos) {
+    int opciones[MAX_CURSOS];
+    int cantidad = 0;
+    for (int c = 0; c < numCursos; c++) {
+        if (e.estado[c] != NO_CURSADO) {
+            opciones[cantidad] = c;
+            cantidad++;
+        }
+    }
+
+    int curso = elegirCurso(cursos, opciones, cantidad, "Cursos del estudiante");
+    if (curso == -1) {
+        return;
+    }
+
+    // 1) Cursos que dependen directamente de este y ya fueron llevados
+    int hijos[MAX_CURSOS];
+    int n = hijosDe(cursos, numCursos, curso, hijos);
+    for (int i = 0; i < n; i++) {
+        if (e.estado[hijos[i]] != NO_CURSADO) {
+            mensajeError("No se puede quitar: " + cursos[hijos[i]].nombre + " ("
+                         + textoEstado(e.estado[hijos[i]]) + ") depende de este curso.");
+            mensajeAviso("Quite primero ese curso.");
+            return;
+        }
+    }
+
+    // 2) Si era aprobado, se pierden sus creditos: revisar minimos
+    if (e.estado[curso] == APROBADO) {
+        int creditosDespues = creditosAprobados(e, cursos, numCursos) - cursos[curso].creditos;
+        for (int c = 0; c < numCursos; c++) {
+            if (c != curso && e.estado[c] != NO_CURSADO && cursos[c].creditosMinimos > creditosDespues) {
+                mensajeError("No se puede quitar: " + cursos[c].nombre + " pide "
+                             + to_string(cursos[c].creditosMinimos) + " creditos y quedarian "
+                             + to_string(creditosDespues) + ".");
+                return;
+            }
+        }
+    }
+
+    mensajeAviso(cursos[curso].nombre + " (" + textoEstado(e.estado[curso])
+                 + ") pasara a no cursado y se borraran sus notas.");
+    if (leerEntero("  Confirma? (1 = Si, 0 = No): ", 0, 1) == 0) {
+        mensajeAviso("Cancelado.");
+        return;
+    }
+
+    e.estado[curso] = NO_CURSADO;
+    for (int k = 0; k < NUM_COMPONENTES; k++) {
+        e.puntos[curso][k] = SIN_CALIFICAR;
+    }
+    mensajeExito(cursos[curso].nombre + " quitado.");
 }
 
 // =====================================================================
@@ -374,17 +468,18 @@ void menuCursosYNotas(Estudiante estudiantes[], int numEstudiantes,
         grupoMenu("SEMESTRE ACTUAL");
         opcionMenu(3, "Inscribir curso");
         opcionMenu(4, "Ingresar / actualizar puntos de un curso");
+        opcionMenu(5, "Quitar curso (retirar o deshacer)");
         grupoMenu("CONSULTA");
-        opcionMenu(5, "Ver cursos del estudiante");
+        opcionMenu(6, "Ver cursos del estudiante");
         opcionMenu(0, "Regresar al menu principal");
         cout << "\n";
         separador();
-        opcion = leerEntero("  Seleccione: ", 0, 5);
+        opcion = leerEntero("  Seleccione: ", 0, 6);
 
         // La opcion elegida se abre en su propia pantalla limpia
-        const string NOMBRES[6] = {
+        const string NOMBRES[7] = {
             "", "Marcar curso aprobado", "Marcar ciclo completo",
-            "Inscribir curso", "Ingresar puntos", "Ver cursos"
+            "Inscribir curso", "Ingresar puntos", "Quitar curso", "Ver cursos"
         };
         if (opcion != 0) {
             encabezado("Menu principal > Cursos y notas > " + e.nombre + " > " + NOMBRES[opcion]);
@@ -395,7 +490,8 @@ void menuCursosYNotas(Estudiante estudiantes[], int numEstudiantes,
             case 2: opcionMarcarCiclo(e, cursos, numCursos);     break;
             case 3: opcionInscribir(e, cursos, numCursos);       break;
             case 4: opcionIngresarPuntos(e, cursos, numCursos);  break;
-            case 5: mostrarCursosEstudiante(e, cursos, numCursos); break;
+            case 5: opcionQuitarCurso(e, cursos, numCursos);     break;
+            case 6: mostrarCursosEstudiante(e, cursos, numCursos); break;
             default: break;
         }
 
