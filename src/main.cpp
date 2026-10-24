@@ -144,6 +144,10 @@ bool cargarDatos() {
         mensajeAviso("Ejecute el programa desde la carpeta raiz del proyecto.");
         return false;
     }
+    if (numCursos == -2) {
+        mensajeError("El pensum no forma un bosque de arboles binarios valido.");
+        return false;
+    }
     if (numCursos == 0) {
         mensajeError("El archivo " + RUTA_PENSUM + " no tiene cursos validos.");
         return false;

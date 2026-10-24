@@ -19,7 +19,7 @@ void menuDiscreta(const Estudiante estudiantes[], int numEstudiantes,
     const string RUTA = "Menu principal > Matematica Discreta";
     const string NOMBRES[7] = {
         "", "Conjuntos de un estudiante", "Comparar dos estudiantes",
-        "Cursos habilitados (logica)", "Arbol de prerrequisitos",
+        "Cursos habilitados (logica)", "Arbol binario de prerrequisitos",
         "Que bloquea reprobar un curso", "Cadena mas larga (altura)"
     };
     int opcion;
@@ -32,7 +32,7 @@ void menuDiscreta(const Estudiante estudiantes[], int numEstudiantes,
         opcionMenu(2, NOMBRES[2] + pintar("     (interseccion, diferencia, union)", GRIS));
         grupoMenu("LOGICA PROPOSICIONAL");
         opcionMenu(3, NOMBRES[3] + pintar("  (p AND q AND r AND s)", GRIS));
-        grupoMenu("ARBOLES");
+        grupoMenu("ARBOLES BINARIOS");
         opcionMenu(4, NOMBRES[4] + pintar("      (recorrido recursivo)", GRIS));
         opcionMenu(5, NOMBRES[5] + pintar(" (subarbol)", GRIS));
         opcionMenu(6, NOMBRES[6] + pintar("     (altura del arbol)", GRIS));

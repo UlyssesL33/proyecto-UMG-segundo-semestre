@@ -1,28 +1,30 @@
 // =====================================================================
-// arboles.h - El pensum como bosque de arboles (pasos 17 y 18)
+// arboles.h - Bosque de arboles binarios de prerrequisitos
 // ---------------------------------------------------------------------
-// Cada curso tiene A LO SUMO un curso prerrequisito. Si vemos el
-// prerrequisito como el "padre" de un curso, el pensum queda como un
-// BOSQUE: varios arboles separados.
-//
-//   Algoritmos                      <- raiz (no tiene padre)
-//   `-- Programacion I              <- hijo de Algoritmos
-//       `-- Programacion II
-//           `-- ...
-//
-// No hace falta guardar el arbol aparte: el padre de cada curso ya esta
-// en cursos[i].prerrequisito, y los hijos se encuentran buscando que
-// cursos tienen a ese curso como prerrequisito.
+// Cada curso tiene hasta un padre y dos hijos. El primero en el archivo
+// es el izquierdo y el segundo, el derecho. -1 significa que no hay hijo.
+// El pensum se valida antes de recorrerlo; no es un arbol de busqueda.
 // =====================================================================
 #pragma once
 
 #include "modelos.h"
 
+const int MAX_HIJOS_BINARIOS = 2;
+
+struct HijosBinarios {
+    int izquierdo;
+    int derecho;
+};
+
+// Rechaza mas de dos hijos, ciclos, codigos repetidos o padres inexistentes.
+bool validarArbolesBinarios(const Curso cursos[], int numCursos);
+
 // Posicion del padre (prerrequisito) de un curso, o -1 si es raiz.
 int padreDe(const Curso cursos[], int numCursos, int curso);
 
-// Llena hijos[] con las posiciones de los cursos que tienen a "curso"
-// como prerrequisito. Devuelve cuantos hijos tiene.
+HijosBinarios hijosBinariosDe(const Curso cursos[], int numCursos, int curso);
+
+// Llena hasta dos posiciones de hijos[]: izquierdo y luego derecho.
 int hijosDe(const Curso cursos[], int numCursos, int curso, int hijos[]);
 
 // Cantidad de descendientes (hijos, nietos, ...) de un curso. Recursiva.

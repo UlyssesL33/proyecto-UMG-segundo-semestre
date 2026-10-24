@@ -35,6 +35,13 @@ para compilar todos los `.cpp` y ejecutar desde la raiz. `Ctrl+Shift+B` solo
 compila; la tarea **Compilar y ejecutar proyecto** tambien inicia el programa.
 No compilar unicamente `main.cpp`: necesita enlazar los demas modulos.
 
+## Arboles binarios de prerrequisitos
+
+El pensum se representa como un bosque de arboles binarios: cada curso
+admite hasta dos hijos (izquierdo y derecho, segun el orden del archivo).
+La carga rechaza un tercer hijo, ciclos, codigos repetidos y prerrequisitos
+inexistentes. Los enlaces representan prerrequisitos, no un orden de busqueda.
+
 ## Visual Studio Community
 
 Crear un proyecto vacio de C++ y usar "Agregar elemento existente" con los

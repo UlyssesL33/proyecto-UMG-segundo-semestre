@@ -8,6 +8,7 @@
 
 // Lee el archivo del pensum y llena el arreglo cursos[].
 // Devuelve cuantos cursos se cargaron, o -1 si no se pudo abrir el archivo.
+// Devuelve -2 si los prerrequisitos no forman un bosque binario valido.
 int cargarPensum(Curso cursos[], const std::string& ruta);
 
 // Busca un curso por su codigo ("090008").

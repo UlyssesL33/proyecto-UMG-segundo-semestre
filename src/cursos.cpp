@@ -5,6 +5,7 @@
 #include "config.h"
 #include "validaciones.h"   // recortar, partirLinea, textoAEntero
 #include "pantalla.h"
+#include "arboles.h"       // validarArbolesBinarios
 
 #include <iostream>
 #include <fstream>   // ifstream: leer archivos
@@ -68,13 +69,8 @@ int cargarPensum(Curso cursos[], const string& ruta) {
 
     archivo.close();
 
-    // Revision de integridad: cada prerrequisito debe ser un curso que exista
-    for (int i = 0; i < numCursos; i++) {
-        string req = cursos[i].prerrequisito;
-        if (req != SIN_PRERREQUISITO && buscarCurso(cursos, numCursos, req) == -1) {
-            mensajeAviso("El prerrequisito " + req + " de " + cursos[i].codigo
-                         + " no existe en el pensum.");
-        }
+    if (!validarArbolesBinarios(cursos, numCursos)) {
+        return -2;
     }
 
     return numCursos;

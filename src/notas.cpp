@@ -329,7 +329,7 @@ static void opcionQuitarCurso(Estudiante& e, const Curso cursos[], int numCursos
     }
 
     // 1) Cursos que dependen directamente de este y ya fueron llevados
-    int hijos[MAX_CURSOS];
+    int hijos[MAX_HIJOS_BINARIOS];
     int n = hijosDe(cursos, numCursos, curso, hijos);
     for (int i = 0; i < n; i++) {
         if (e.estado[hijos[i]] != NO_CURSADO) {
