@@ -10,7 +10,9 @@
 #include <iomanip>   // fixed, setprecision
 
 #ifdef _WIN32
+    #ifndef NOMINMAX
     #define NOMINMAX
+    #endif
     #include <windows.h>   // solo para activar los colores en Windows
 #endif
 
