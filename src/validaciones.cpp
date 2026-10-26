@@ -134,6 +134,10 @@ bool formatoCarneValido(const string& carne) {
 string leerCarne(const string& mensaje) {
     while (true) {
         string carne = leerTexto(mensaje);
+        
+        if (carne == "0") {
+            return "0";
+        }
 
         if (!formatoCarneValido(carne)) {
             mensajeError("Formato invalido. Ejemplo: " + CODIGO_CARRERA + "-26-9368");

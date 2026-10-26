@@ -39,7 +39,14 @@ bool registrarEstudiante(Estudiante estudiantes[], int& numEstudiantes) {
         return false;
     }
 
-    string carne = leerCarne("  Carne (ej. 0900-26-9368): ");
+    string carne = leerCarne("  Carne (ej. 0900-26-9368) | Cancelar = 0:  ");
+
+        // Si ingresa 0, regresa al menu sin registrar.
+    if (carne == "0") {
+        mensajeAviso("Registro cancelado.");
+        return false;
+    }
+    
 
     if (buscarEstudiante(estudiantes, numEstudiantes, carne) != -1) {
         mensajeError("El carne " + carne + " ya esta registrado.");
