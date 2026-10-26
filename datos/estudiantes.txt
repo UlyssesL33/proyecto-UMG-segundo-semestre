@@ -1,0 +1,13 @@
+# Estudiantes - Control Academico UMG
+# E|carne|nombre|carrera
+# C|carne|codigoCurso|estado|parcial1|parcial2|zona|final
+E|0900-26-16049|Vivian Raquel Quiej Ixmata|0900
+C|0900-26-16049|090001|1|-1|-1|-1|-1
+C|0900-26-16049|090003|2|-1|-1|-1|-1
+E|0900-26-4569|Luc¡a Alejandra Fuentes Dorta|0900
+C|0900-26-4569|090005|1|-1|0|0|0
+C|0900-26-4569|090006|2|-1|-1|-1|-1
+C|0900-26-4569|090007|2|-1|-1|-1|-1
+C|0900-26-4569|090008|2|-1|-1|-1|-1
+C|0900-26-4569|090009|2|-1|-1|-1|-1
+C|0900-26-4569|090010|2|-1|-1|-1|-1
