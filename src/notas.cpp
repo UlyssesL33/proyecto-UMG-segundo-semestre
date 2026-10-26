@@ -192,63 +192,7 @@ static double leerPuntos(int componente, double actual) {
     }
 }
 
-// marcar cursos aprobados de ciclos anteriores (sin notas)
-
-static void opcionMarcarCurso(Estudiante& e, const Curso cursos[], int numCursos) {
-    int ciclo = elegirCiclo(cursos, numCursos);
-    if (ciclo == 0) {
-        return;
-    }
-
-    int opciones[MAX_CURSOS];
-    int ocultos = 0;
-    int cantidad = cursosHabilitadosDelCiclo(e, cursos, numCursos, ciclo, opciones, ocultos);
-    if (ocultos > 0) {
-        mensajeAviso(to_string(ocultos) + " curso(s) del ciclo no aparecen: aun no estan habilitados.");
-        cout << pintar("  Marque los ciclos en orden (1, 2, 3...) para cumplir los prerrequisitos.", GRIS) << "\n";
-    }
-    int curso = elegirCurso(cursos, opciones, cantidad, "Cursos habilitados del ciclo");
-    if (curso == -1) {
-        return;
-    }
-
-    reiniciarCurso(e, curso, APROBADO);
-    cout << "\n";
-    mensajeExito(cursos[curso].nombre + " marcado como aprobado (sin notas).");
-}
-
-// Marca de una vez todos los cursos de un ciclo. Util para registrar
-// rapido a un estudiante de tercer semestre o mas.
-static void opcionMarcarCiclo(Estudiante& e, const Curso cursos[], int numCursos) {
-    int ciclo = elegirCiclo(cursos, numCursos);
-    if (ciclo == 0) {
-        return;
-    }
-    int marcados = 0;
-
-    for (int c = 0; c < numCursos; c++) {
-        if (cursos[c].ciclo != ciclo) {
-            continue;
-        }
-        bool pendiente = (e.estado[c] == NO_CURSADO || e.estado[c] == REPROBADO);
-        if (!pendiente) {
-            continue;   // aprobados o en curso no se tocan
-        }
-        // solo se aprueba lo que esta habilitado
-        if (!estaHabilitado(e, cursos, numCursos, c)) {
-            mensajeAviso(cursos[c].codigo + "  " + cursos[c].nombre + "  (no habilitado: falta prerrequisito o creditos)");
-            continue;
-        }
-        reiniciarCurso(e, c, APROBADO);
-        mensajeExito(cursos[c].codigo + "  " + cursos[c].nombre);
-        marcados++;
-    }
-    cout << "\n" << pintar("  Cursos marcados: ", GRIS) << marcados
-         << pintar("  (los aprobados o en curso no se tocan)", GRIS) << "\n";
-}
-
 // inscribir un curso
-
 // La misma regla de logica determina que cursos se pueden inscribir.
 static void opcionInscribir(Estudiante& e, const Curso cursos[], int numCursos) {
     int opciones[MAX_CURSOS];
@@ -415,8 +359,7 @@ void menuCursosYNotas(Estudiante estudiantes[], int numEstudiantes,
     Estudiante& e = estudiantes[pos];
     const string ruta = "Cursos y notas > " + e.nombre;
     const string nombres[7] = {
-        "Regresar al menu principal", "Marcar curso aprobado (sin notas)",
-        "Marcar aprobado un ciclo completo", "Inscribir curso",
+        "Regresar al menu principal", "Inscribir curso",
         "Ingresar / actualizar puntos de un curso", "Quitar curso (retirar o deshacer)",
         "Ver cursos del estudiante"
     };
@@ -431,15 +374,11 @@ void menuCursosYNotas(Estudiante estudiantes[], int numEstudiantes,
              << pintar("    Creditos aprobados: ", GRIS) << creditosAprobados(e, cursos, numCursos)
              << pintar("    Cursos en curso: ", GRIS) << enCurso << "\n";
 
-        grupoMenu("CICLOS ANTERIORES");
-        opcionMenu(1, nombres[1]);
-        opcionMenu(2, nombres[2]);
-        grupoMenu("SEMESTRE ACTUAL");
-        for (int i = 3; i <= 5; i++) {
+        for (int i = 1; i <= 3; i++) {
             opcionMenu(i, nombres[i]);
         }
         grupoMenu("CONSULTA");
-        opcionMenu(6, nombres[6]);
+        opcionMenu(4, nombres[4]);
         opcionMenu(0, nombres[0]);
         cout << "\n";
         separador();
@@ -452,12 +391,10 @@ void menuCursosYNotas(Estudiante estudiantes[], int numEstudiantes,
         encabezado(ruta + " > " + nombres[opcion]);
 
         switch (opcion) {
-            case 1: opcionMarcarCurso(e, cursos, numCursos);     break;
-            case 2: opcionMarcarCiclo(e, cursos, numCursos);     break;
-            case 3: opcionInscribir(e, cursos, numCursos);       break;
-            case 4: opcionIngresarPuntos(e, cursos, numCursos);  break;
-            case 5: opcionQuitarCurso(e, cursos, numCursos);     break;
-            case 6: mostrarCursosEstudiante(e, cursos, numCursos); break;
+            case 1: opcionInscribir(e, cursos, numCursos);       break;
+            case 2: opcionIngresarPuntos(e, cursos, numCursos);  break;
+            case 3: opcionQuitarCurso(e, cursos, numCursos);     break;
+            case 4: mostrarCursosEstudiante(e, cursos, numCursos); break;
             default: break;
         }
 
