@@ -1,21 +1,17 @@
-// =====================================================================
 // arboles.cpp - Bosque de arboles binarios de prerrequisitos
-// =====================================================================
 #include "arboles.h"
 #include "config.h"
 #include "pantalla.h"
-#include "cursos.h"        // buscarCurso, elegirCurso
-#include "logica.h"        // estaHabilitado
-#include "estudiantes.h"   // inicializarEstudiante
+#include "cursos.h"
+#include "logica.h"
+#include "estudiantes.h"
 
 #include <iostream>
 #include <string>
 
 using namespace std;
 
-// =====================================================================
 // Estructura del arbol
-// =====================================================================
 
 int padreDe(const Curso cursos[], int numCursos, int curso) {
     if (cursos[curso].prerrequisito == SIN_PRERREQUISITO) {
@@ -91,10 +87,8 @@ int hijosDe(const Curso cursos[], int numCursos, int curso, int hijos[]) {
     return cantidad;
 }
 
-// ---------------------------------------------------------------------
 // Recursion: los descendientes de un curso son sus hijos MAS los
 // descendientes de cada hijo. Se detiene sola en las hojas (0 hijos).
-// ---------------------------------------------------------------------
 int contarDescendientes(const Curso cursos[], int numCursos, int curso) {
     HijosBinarios hijos = hijosBinariosDe(cursos, numCursos, curso);
     int total = 0;
@@ -107,20 +101,22 @@ int contarDescendientes(const Curso cursos[], int numCursos, int curso) {
     return total;
 }
 
-// ---------------------------------------------------------------------
 // Recursion: una hoja tiene altura 1. Cualquier otro curso tiene
 // 1 + la altura de su hijo mas "alto".
-// ---------------------------------------------------------------------
 int altura(const Curso cursos[], int numCursos, int curso) {
+    if (curso == -1) {
+        return 0;
+    }
     HijosBinarios hijos = hijosBinariosDe(cursos, numCursos, curso);
-    int izquierda = hijos.izquierdo == -1 ? 0 : altura(cursos, numCursos, hijos.izquierdo);
-    int derecha = hijos.derecho == -1 ? 0 : altura(cursos, numCursos, hijos.derecho);
-    return 1 + (izquierda > derecha ? izquierda : derecha);
+    int izquierda = altura(cursos, numCursos, hijos.izquierdo);
+    int derecha = altura(cursos, numCursos, hijos.derecho);
+    if (izquierda > derecha) {
+        return 1 + izquierda;
+    }
+    return 1 + derecha;
 }
 
-// =====================================================================
 // Dibujo del arbol
-// =====================================================================
 
 // Marca de un curso segun el estudiante.
 static string marca(const Estudiante& e, const Curso cursos[], int numCursos, int curso) {
@@ -136,25 +132,13 @@ static string marca(const Estudiante& e, const Curso cursos[], int numCursos, in
     return pintar("[B]", GRIS);
 }
 
-// ---------------------------------------------------------------------
-// Dibuja un curso y, recursivamente, todo lo que cuelga de el:
-//
-//   Algoritmos
-//   `-- Programacion I            <- ultimo hijo: "`-- "
-//       |-- ...                   <- hijo que no es el ultimo: "|-- "
-//
-// "prefijo" acumula las lineas verticales de los niveles de arriba.
-// Si conMarcas es false se dibuja solo el pensum, sin el estudiante.
-// ---------------------------------------------------------------------
+// Preorden: curso, hijo izquierdo e hijo derecho. Cada nivel agrega sangria.
 static void dibujarRama(const Estudiante& e, bool conMarcas, const Curso cursos[], int numCursos,
-                        int curso, const string& prefijo, bool esUltimo, bool esRaiz,
-                        bool esDerecho = false) {
-    string conector = esRaiz ? "" : (esUltimo ? "`-- " : "|-- ");
-
-    cout << "  " << pintar(prefijo + conector, GRIS);
-    if (!esRaiz) {
-        cout << pintar(esDerecho ? "D: " : "I: ", GRIS);
+                        int curso, int nivel, const string& lado) {
+    if (curso == -1) {
+        return;
     }
+    cout << "  " << pintar(string(nivel * 4, ' ') + lado, GRIS);
     if (conMarcas) {
         cout << marca(e, cursos, numCursos, curso) << " ";
     }
@@ -164,22 +148,12 @@ static void dibujarRama(const Estudiante& e, bool conMarcas, const Curso cursos[
     }
     cout << "\n";
 
-    string prefijoHijos = prefijo + (esRaiz ? "" : (esUltimo ? "    " : "|   "));
-
     HijosBinarios hijos = hijosBinariosDe(cursos, numCursos, curso);
-    if (hijos.izquierdo != -1) {
-        dibujarRama(e, conMarcas, cursos, numCursos, hijos.izquierdo,
-                    prefijoHijos, hijos.derecho == -1, false);
-    }
-    if (hijos.derecho != -1) {
-        dibujarRama(e, conMarcas, cursos, numCursos, hijos.derecho,
-                    prefijoHijos, true, false, true);
-    }
+    dibujarRama(e, conMarcas, cursos, numCursos, hijos.izquierdo, nivel + 1, "I: ");
+    dibujarRama(e, conMarcas, cursos, numCursos, hijos.derecho, nivel + 1, "D: ");
 }
 
-// =====================================================================
-// Paso 17: arbol del estudiante
-// =====================================================================
+// arbol del estudiante
 
 void pantallaArbolEstudiante(const Estudiante& e, const Curso cursos[], int numCursos) {
     concepto("Arbol binario: cada curso tiene hasta dos hijos");
@@ -197,7 +171,7 @@ void pantallaArbolEstudiante(const Estudiante& e, const Curso cursos[], int numC
     subtitulo("Ramas con cadena de prerrequisitos");
     for (int c = 0; c < numCursos; c++) {
         if (padreDe(cursos, numCursos, c) == -1 && hijosDe(cursos, numCursos, c, hijos) > 0) {
-            dibujarRama(e, true, cursos, numCursos, c, "", true, true);
+            dibujarRama(e, true, cursos, numCursos, c, 0, "");
         }
     }
 
@@ -221,9 +195,7 @@ void pantallaArbolEstudiante(const Estudiante& e, const Curso cursos[], int numC
     }
 }
 
-// =====================================================================
-// Paso 18: que bloquea reprobar un curso
-// =====================================================================
+// que bloquea reprobar un curso
 
 void pantallaBloqueos(const Curso cursos[], int numCursos) {
     // Solo tiene sentido para cursos que son prerrequisito de otro
@@ -251,7 +223,7 @@ void pantallaBloqueos(const Curso cursos[], int numCursos) {
     subtitulo("Subarbol de " + cursos[curso].nombre);
     Estudiante vacio;
     inicializarEstudiante(vacio);
-    dibujarRama(vacio, false, cursos, numCursos, curso, "", true, true);
+    dibujarRama(vacio, false, cursos, numCursos, curso, 0, "");
 
     cout << "\n  Reprobar " << pintar(cursos[curso].nombre, CIAN) << " bloquea "
          << pintar(to_string(bloqueados) + " curso(s)", ROJO) << " en cadena.\n";
@@ -268,9 +240,7 @@ void pantallaBloqueos(const Curso cursos[], int numCursos) {
          << pintar("  que piden un minimo de creditos aprobados.", GRIS) << "\n";
 }
 
-// =====================================================================
-// Paso 18: altura de los arboles y cadena mas larga
-// =====================================================================
+// altura de los arboles y cadena mas larga
 
 void pantallaProfundidad(const Curso cursos[], int numCursos) {
     concepto("Altura de un arbol binario (recursiva)");
@@ -312,17 +282,14 @@ void pantallaProfundidad(const Curso cursos[], int numCursos) {
         cout << "  " << pintar(to_string(nivel) + ".", CIAN) << " " << cursos[actual].nombre
              << pintar("  (ciclo " + to_string(cursos[actual].ciclo) + ")", GRIS) << "\n";
 
-        int n = hijosDe(cursos, numCursos, actual, hijos);
-        int siguiente = -1;
-        int alturaSiguiente = 0;
-        for (int i = 0; i < n; i++) {
-            int h = altura(cursos, numCursos, hijos[i]);
-            if (h > alturaSiguiente) {
-                alturaSiguiente = h;
-                siguiente = hijos[i];
-            }
+        HijosBinarios ramas = hijosBinariosDe(cursos, numCursos, actual);
+        int izquierda = altura(cursos, numCursos, ramas.izquierdo);
+        int derecha = altura(cursos, numCursos, ramas.derecho);
+        if (izquierda >= derecha) {
+            actual = ramas.izquierdo;
+        } else {
+            actual = ramas.derecho;
         }
-        actual = siguiente;
         nivel++;
     }
     cout << "\n  Se necesitan al menos " << pintar(to_string(mejorAltura) + " semestres", CIAN)

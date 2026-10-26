@@ -1,10 +1,7 @@
-// =====================================================================
 // validaciones.h - Lectura segura de datos desde el teclado
-// ---------------------------------------------------------------------
 // Todas las funciones leen una LINEA completa con getline y la revisan.
 // Si el dato no es valido, muestran un mensaje y vuelven a preguntar,
 // asi el programa nunca se rompe por un dato mal escrito.
-// =====================================================================
 #pragma once
 
 #include <string>
@@ -33,7 +30,7 @@ std::string leerCarne(const std::string& mensaje);
 // ---------- Utilidades para leer archivos ----------
 
 // Parte una linea por el caracter '|' y guarda cada pedazo en campos[].
-// Devuelve cuantos campos encontro.
+// Devuelve cuantos campos encontro, o maxCampos + 1 si sobran campos.
 // "090008|Algoritmos|5" -> campos = {"090008", "Algoritmos", "5"} -> 3
 int partirLinea(const std::string& linea, std::string campos[], int maxCampos);
 

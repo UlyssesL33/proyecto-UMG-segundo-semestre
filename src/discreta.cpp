@@ -1,10 +1,8 @@
-// =====================================================================
 // discreta.cpp - Submenu de Matematica Discreta (opcion 9)
-// =====================================================================
 #include "discreta.h"
 #include "pantalla.h"
-#include "validaciones.h"   // leerEntero
-#include "estudiantes.h"    // elegirEstudiante
+#include "validaciones.h"
+#include "estudiantes.h"
 #include "conjuntos.h"
 #include "logica.h"
 #include "arboles.h"
@@ -28,14 +26,14 @@ void menuDiscreta(const Estudiante estudiantes[], int numEstudiantes,
         encabezado(RUTA);
 
         grupoMenu("CONJUNTOS");
-        opcionMenu(1, NOMBRES[1] + pintar("   (pendientes = pensum - aprobados)", GRIS));
-        opcionMenu(2, NOMBRES[2] + pintar("     (interseccion, diferencia, union)", GRIS));
+        opcionMenu(1, NOMBRES[1]);
+        opcionMenu(2, NOMBRES[2]);
         grupoMenu("LOGICA PROPOSICIONAL");
-        opcionMenu(3, NOMBRES[3] + pintar("  (p AND q AND r AND s)", GRIS));
+        opcionMenu(3, NOMBRES[3]);
         grupoMenu("ARBOLES BINARIOS");
-        opcionMenu(4, NOMBRES[4] + pintar("      (recorrido recursivo)", GRIS));
-        opcionMenu(5, NOMBRES[5] + pintar(" (subarbol)", GRIS));
-        opcionMenu(6, NOMBRES[6] + pintar("     (altura del arbol)", GRIS));
+        for (int i = 4; i <= 6; i++) {
+            opcionMenu(i, NOMBRES[i]);
+        }
         opcionMenu(0, "Regresar al menu principal");
         cout << "\n";
         separador();
@@ -47,32 +45,49 @@ void menuDiscreta(const Estudiante estudiantes[], int numEstudiantes,
 
         encabezado(RUTA + " > " + NOMBRES[opcion]);
 
-        if (opcion == 1 || opcion == 3 || opcion == 4) {
-            // Estas pantallas son de UN estudiante
-            int pos = elegirEstudiante(estudiantes, numEstudiantes);
-            if (pos != -1) {
-                encabezado(RUTA + " > " + NOMBRES[opcion] + " > " + estudiantes[pos].nombre);
-                if (opcion == 1) pantallaConjuntosEstudiante(estudiantes[pos], cursos, numCursos);
-                if (opcion == 3) pantallaHabilitados(estudiantes[pos], cursos, numCursos);
-                if (opcion == 4) pantallaArbolEstudiante(estudiantes[pos], cursos, numCursos);
+        int pos = -1;
+        if (opcion >= 1 && opcion <= 4) {
+            if (opcion == 2) {
+                subtitulo("Primer estudiante (A1)");
             }
-        } else if (opcion == 2) {
-            subtitulo("Primer estudiante (A1)");
-            int p1 = elegirEstudiante(estudiantes, numEstudiantes);
-            if (p1 != -1) {
+            pos = elegirEstudiante(estudiantes, numEstudiantes);
+            if (pos == -1) {
+                pausar();
+                continue;
+            }
+            encabezado(RUTA + " > " + NOMBRES[opcion] + " > " + estudiantes[pos].nombre);
+        }
+
+        switch (opcion) {
+            case 1:
+                pantallaConjuntosEstudiante(estudiantes[pos], cursos, numCursos);
+                break;
+            case 2: {
                 subtitulo("Segundo estudiante (A2)");
-                int p2 = elegirEstudiante(estudiantes, numEstudiantes);
-                if (p2 == p1) {
-                    mensajeError("Elija dos estudiantes distintos.");
-                } else if (p2 != -1) {
-                    encabezado(RUTA + " > " + NOMBRES[2]);
-                    pantallaCompararEstudiantes(estudiantes[p1], estudiantes[p2], cursos, numCursos);
+                int segundo = elegirEstudiante(estudiantes, numEstudiantes);
+                if (segundo == -1) {
+                    break;
                 }
+                if (segundo == pos) {
+                    mensajeError("Elija dos estudiantes distintos.");
+                    break;
+                }
+                encabezado(RUTA + " > " + NOMBRES[2]);
+                pantallaCompararEstudiantes(estudiantes[pos], estudiantes[segundo], cursos, numCursos);
+                break;
             }
-        } else if (opcion == 5) {
-            pantallaBloqueos(cursos, numCursos);
-        } else if (opcion == 6) {
-            pantallaProfundidad(cursos, numCursos);
+            case 3:
+                pantallaHabilitados(estudiantes[pos], cursos, numCursos);
+                break;
+            case 4:
+                pantallaArbolEstudiante(estudiantes[pos], cursos, numCursos);
+                break;
+            case 5:
+                pantallaBloqueos(cursos, numCursos);
+                break;
+            case 6:
+                pantallaProfundidad(cursos, numCursos);
+                break;
         }
 
         pausar();

@@ -1,10 +1,7 @@
-// =====================================================================
-// estadisticas.h - Reportes y estadisticas (paso 13)
-// ---------------------------------------------------------------------
+// estadisticas.h - Reportes y estadisticas
 // Dos niveles, como acordo el equipo:
 //   - GLOBAL:   por estudiante, segun su promedio entre cursos
 //   - POR CURSO: segun la nota de cada estudiante en ese curso
-// =====================================================================
 #pragma once
 
 #include "modelos.h"

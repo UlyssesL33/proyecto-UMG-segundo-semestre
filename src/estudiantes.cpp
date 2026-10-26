@@ -1,38 +1,27 @@
-// =====================================================================
 // estudiantes.cpp - Registro y manejo de estudiantes
-// =====================================================================
 #include "estudiantes.h"
 #include "config.h"
 #include "validaciones.h"
 #include "pantalla.h"
-#include "notas.h"        // promedio, conteo de cursos, tabla de cursos
-#include "cursos.h"       // totalCreditosPensum
+#include "notas.h"
+#include "cursos.h"
 
 #include <iostream>
 
 using namespace std;
 
-// ---------------------------------------------------------------------
-// Recorre todos los cursos posibles y los deja sin cursar y sin notas.
-// Es importante: un struct nuevo trae "basura" en sus arreglos hasta
-// que se le asigna un valor.
-// ---------------------------------------------------------------------
+// Un estudiante nuevo empieza sin cursos ni notas.
 void inicializarEstudiante(Estudiante& e) {
     e.carne = "";
     e.nombre = "";
     e.carrera = "";
 
     for (int c = 0; c < MAX_CURSOS; c++) {
-        e.estado[c] = NO_CURSADO;
-        for (int k = 0; k < NUM_COMPONENTES; k++) {
-            e.puntos[c][k] = SIN_CALIFICAR;
-        }
+        reiniciarCurso(e, c, NO_CURSADO);
     }
 }
 
-// ---------------------------------------------------------------------
 // Busqueda secuencial por carne (igual que buscarCurso por codigo).
-// ---------------------------------------------------------------------
 int buscarEstudiante(const Estudiante estudiantes[], int numEstudiantes,
                      const string& carne) {
     for (int i = 0; i < numEstudiantes; i++) {
@@ -43,15 +32,7 @@ int buscarEstudiante(const Estudiante estudiantes[], int numEstudiantes,
     return -1;
 }
 
-// ---------------------------------------------------------------------
-// Pasos:
-//   1. Revisar que quede espacio en el arreglo.
-//   2. Pedir el carne (leerCarne ya valida formato y carrera 0900).
-//   3. Revisar que el carne no este registrado.
-//   4. Pedir el nombre.
-//   5. La carrera se toma de los primeros 4 digitos del carne.
-//   6. Guardar en la siguiente posicion libre y aumentar el contador.
-// ---------------------------------------------------------------------
+// El carne debe ser unico y pertenecer a la carrera configurada.
 bool registrarEstudiante(Estudiante estudiantes[], int& numEstudiantes) {
     if (numEstudiantes >= MAX_ESTUDIANTES) {
         mensajeError("No hay espacio: ya hay " + to_string(MAX_ESTUDIANTES) + " estudiantes registrados.");
@@ -71,8 +52,6 @@ bool registrarEstudiante(Estudiante estudiantes[], int& numEstudiantes) {
     nuevo.nombre  = leerTexto("  Nombre completo: ");
     nuevo.carrera = carne.substr(0, 4);
 
-    // La siguiente posicion libre es justamente numEstudiantes:
-    // si hay 3 estudiantes, ocupan 0, 1 y 2, y el nuevo va en 3.
     estudiantes[numEstudiantes] = nuevo;
     numEstudiantes++;
 
@@ -82,18 +61,14 @@ bool registrarEstudiante(Estudiante estudiantes[], int& numEstudiantes) {
     return true;
 }
 
-// ---------------------------------------------------------------------
 // Datos basicos de un estudiante.
-// ---------------------------------------------------------------------
 void mostrarEstudiante(const Estudiante& e) {
     cout << "\n" << pintar("  Carne:   ", GRIS) << e.carne << "\n";
     cout << pintar("  Nombre:  ", GRIS) << e.nombre << "\n";
     cout << pintar("  Carrera: ", GRIS) << e.carrera << " - " << NOMBRE_CARRERA << "\n";
 }
 
-// ---------------------------------------------------------------------
 // Resumen academico: promedio, cursos por estado y creditos.
-// ---------------------------------------------------------------------
 static void mostrarResumen(const Estudiante& e, const Curso cursos[], int numCursos) {
     int conNota = 0;
     double promedio = promedioEstudiante(e, numCursos, conNota);
@@ -108,12 +83,6 @@ static void mostrarResumen(const Estudiante& e, const Curso cursos[], int numCur
          << " de " << totalCreditosPensum(cursos, numCursos) << "\n";
 }
 
-// ---------------------------------------------------------------------
-// Pasos:
-//   1. Si no hay estudiantes, no tiene sentido preguntar.
-//   2. Pedir el carne y buscarlo (busqueda por carne, como pide Algoritmos).
-//   3. Mostrar datos, resumen y cursos, o avisar que no existe.
-// ---------------------------------------------------------------------
 void consultarEstudiante(const Estudiante estudiantes[], int numEstudiantes,
                          const Curso cursos[], int numCursos) {
     if (numEstudiantes == 0) {
@@ -135,11 +104,7 @@ void consultarEstudiante(const Estudiante estudiantes[], int numEstudiantes,
     mostrarCursosEstudiante(e, cursos, numCursos);
 }
 
-// ---------------------------------------------------------------------
-// Recorre el arreglo de 0 a numEstudiantes-1 y muestra una fila por
-// estudiante. Solo se recorren las posiciones ocupadas, nunca las 100.
-// La situacion global se decide con el promedio entre cursos.
-// ---------------------------------------------------------------------
+// La situacion global depende del promedio, no de aprobar todos los cursos.
 void listarEstudiantes(const Estudiante estudiantes[], int numEstudiantes, int numCursos) {
     if (numEstudiantes == 0) {
         mensajeAviso("No hay estudiantes registrados.");
@@ -182,10 +147,8 @@ void listarEstudiantes(const Estudiante estudiantes[], int numEstudiantes, int n
                    + textoDecimal(NOTA_MINIMA, 0) + ").", GRIS) << "\n";
 }
 
-// ---------------------------------------------------------------------
-// Paso 12: modificar. Las notas se corrigen en la opcion 2; aqui se
+// modificar. Las notas se corrigen en la opcion 2; aqui se
 // cambian los datos personales.
-// ---------------------------------------------------------------------
 void modificarEstudiante(Estudiante estudiantes[], int numEstudiantes) {
     int pos = elegirEstudiante(estudiantes, numEstudiantes);
     if (pos == -1) {
@@ -224,14 +187,12 @@ void modificarEstudiante(Estudiante estudiantes[], int numEstudiantes) {
     mostrarEstudiante(e);
 }
 
-// ---------------------------------------------------------------------
-// Paso 12: eliminar.
+// eliminar.
 // Para no dejar un "hueco" en el arreglo, cada estudiante que esta
 // despues del eliminado se recorre una posicion hacia atras:
 //
 //   antes:  [Ana] [Luis] [Eva] [Juan]     eliminar Luis (posicion 1)
 //   despues:[Ana] [Eva] [Juan]            numEstudiantes: 4 -> 3
-// ---------------------------------------------------------------------
 void eliminarEstudiante(Estudiante estudiantes[], int& numEstudiantes,
                         const Curso cursos[], int numCursos) {
     int pos = elegirEstudiante(estudiantes, numEstudiantes);
@@ -259,10 +220,8 @@ void eliminarEstudiante(Estudiante estudiantes[], int& numEstudiantes,
     mensajeExito(nombre + " eliminado. Quedan " + to_string(numEstudiantes) + " estudiante(s).");
 }
 
-// ---------------------------------------------------------------------
 // Como en la lista, la posicion i del arreglo se muestra como i + 1,
 // asi que al elegir el numero n se devuelve la posicion n - 1.
-// ---------------------------------------------------------------------
 int elegirEstudiante(const Estudiante estudiantes[], int numEstudiantes) {
     if (numEstudiantes == 0) {
         mensajeAviso("No hay estudiantes registrados.");

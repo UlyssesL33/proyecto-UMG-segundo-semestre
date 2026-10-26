@@ -1,10 +1,7 @@
-// =====================================================================
 // arboles.h - Bosque de arboles binarios de prerrequisitos
-// ---------------------------------------------------------------------
 // Cada curso tiene hasta un padre y dos hijos. El primero en el archivo
 // es el izquierdo y el segundo, el derecho. -1 significa que no hay hijo.
 // El pensum se valida antes de recorrerlo; no es un arbol de busqueda.
-// =====================================================================
 #pragma once
 
 #include "modelos.h"
@@ -36,13 +33,13 @@ int altura(const Curso cursos[], int numCursos, int curso);
 
 // ---------- Pantallas (opcion 9 del menu) ----------
 
-// Paso 17: el pensum dibujado como arbol, marcando cada curso segun el
+// el pensum dibujado como arbol, marcando cada curso segun el
 // estudiante: [A] aprobado, [C] en curso, [R] reprobado, [H] habilitado,
 // [B] bloqueado.
 void pantallaArbolEstudiante(const Estudiante& e, const Curso cursos[], int numCursos);
 
-// Paso 18: elegir un curso y ver todo lo que bloquea reprobarlo (su subarbol).
+// elegir un curso y ver todo lo que bloquea reprobarlo (su subarbol).
 void pantallaBloqueos(const Curso cursos[], int numCursos);
 
-// Paso 18: altura de cada arbol y la cadena de prerrequisitos mas larga.
+// altura de cada arbol y la cadena de prerrequisitos mas larga.
 void pantallaProfundidad(const Curso cursos[], int numCursos);

@@ -1,6 +1,4 @@
-// =====================================================================
 // conjuntos.h - Conjuntos de cursos (Matematica Discreta, paso 15)
-// ---------------------------------------------------------------------
 // Un conjunto de cursos se guarda como un arreglo de bool del tamano del
 // pensum (su "vector caracteristico"):
 //
@@ -17,7 +15,6 @@
 // Los conjuntos que usa el programa (S es el universo):
 //     S = Pensum (los 50 cursos)    A = Aprobados    C = En curso
 //     R = Reprobados                P = Pendientes = S - A
-// =====================================================================
 #pragma once
 
 #include <string>

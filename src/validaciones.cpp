@@ -1,17 +1,14 @@
-// =====================================================================
 // validaciones.cpp - Implementacion de la lectura segura de datos
-// =====================================================================
 #include "validaciones.h"
 #include "config.h"
-#include "pantalla.h"   // mensajeError
+#include "pantalla.h"
 
 #include <iostream>
-#include <sstream>   // stringstream: convertir texto a numero
-#include <cstdlib>   // exit()
+#include <sstream>
+#include <cstdlib>
 
 using namespace std;
 
-// ---------------------------------------------------------------------
 string recortar(const string& texto) {
     int inicio = 0;
     int fin = (int)texto.length() - 1;
@@ -32,11 +29,9 @@ static string numeroATexto(double valor) {
     return ss.str();
 }
 
-// ---------------------------------------------------------------------
 // Lee una linea del teclado. Si la entrada se termino (Ctrl+Z en Windows,
 // Ctrl+D en Linux) ya no hay nada que leer: sin esta revision las
 // funciones de abajo volverian a preguntar para siempre.
-// ---------------------------------------------------------------------
 static void leerLinea(string& linea) {
     if (!getline(cin, linea)) {
         cout << "\n\n";
@@ -45,25 +40,18 @@ static void leerLinea(string& linea) {
     }
 }
 
-// ---------------------------------------------------------------------
 // Idea: se lee la linea completa como texto y se intenta convertir.
 // "12"    -> valido
 // "abc"   -> no se puede convertir
 // "12abc" -> se convierte el 12 pero sobra "abc" -> invalido
-// ---------------------------------------------------------------------
 int leerEntero(const string& mensaje, int min, int max) {
     string linea;
     while (true) {
         cout << mensaje;
         leerLinea(linea);
 
-        stringstream ss(linea);
         int valor;
-        char sobrante;
-
-        bool esNumero = (ss >> valor) && !(ss >> sobrante);
-
-        if (!esNumero) {
+        if (!textoAEntero(linea, valor)) {
             mensajeError("Debe ingresar un numero entero.");
         } else if (valor < min || valor > max) {
             mensajeError("El valor debe estar entre " + numeroATexto(min) + " y " + numeroATexto(max) + ".");
@@ -73,7 +61,6 @@ int leerEntero(const string& mensaje, int min, int max) {
     }
 }
 
-// ---------------------------------------------------------------------
 double leerDecimal(const string& mensaje, double min, double max) {
     string linea;
     while (true) {
@@ -87,13 +74,8 @@ double leerDecimal(const string& mensaje, double min, double max) {
             }
         }
 
-        stringstream ss(linea);
         double valor;
-        char sobrante;
-
-        bool esNumero = (ss >> valor) && !(ss >> sobrante);
-
-        if (!esNumero) {
+        if (!textoADecimal(linea, valor)) {
             mensajeError("Debe ingresar un numero (puede llevar decimales).");
         } else if (valor < min || valor > max) {
             mensajeError("El valor debe estar entre " + numeroATexto(min) + " y " + numeroATexto(max) + ".");
@@ -103,7 +85,6 @@ double leerDecimal(const string& mensaje, double min, double max) {
     }
 }
 
-// ---------------------------------------------------------------------
 string leerTexto(const string& mensaje) {
     string linea;
     while (true) {
@@ -121,14 +102,12 @@ string leerTexto(const string& mensaje) {
     }
 }
 
-// ---------------------------------------------------------------------
 // Revisa el carne caracter por caracter:
 //   posiciones 0-3 : digitos (carrera)
 //   posicion   4   : '-'
 //   posiciones 5-6 : digitos (anio)
 //   posicion   7   : '-'
 //   posicion   8.. : de 1 a 6 digitos (correlativo)
-// ---------------------------------------------------------------------
 bool formatoCarneValido(const string& carne) {
     int largo = (int)carne.length();
 
@@ -152,7 +131,6 @@ bool formatoCarneValido(const string& carne) {
     return true;
 }
 
-// ---------------------------------------------------------------------
 string leerCarne(const string& mensaje) {
     while (true) {
         string carne = leerTexto(mensaje);
@@ -167,44 +145,47 @@ string leerCarne(const string& mensaje) {
     }
 }
 
-// =====================================================================
 // Utilidades para leer archivos
-// =====================================================================
 
-// ---------------------------------------------------------------------
-// Busca cada '|' con find y corta el texto entre barras con substr.
-// ---------------------------------------------------------------------
+// Separa los campos sin escribir fuera del arreglo.
 int partirLinea(const string& linea, string campos[], int maxCampos) {
     int cantidad = 0;
-    int inicio = 0;
-
-    while (cantidad < maxCampos) {
-        int barra = (int)linea.find('|', inicio);
-
-        if (barra == (int)string::npos) {
-            // Ultimo campo: desde inicio hasta el final de la linea
-            campos[cantidad] = recortar(linea.substr(inicio));
+    string campo;
+    for (int i = 0; i <= (int)linea.length(); i++) {
+        if (i == (int)linea.length() || linea[i] == '|') {
+            if (cantidad == maxCampos) {
+                return maxCampos + 1; // hay mas campos de los permitidos
+            }
+            campos[cantidad] = recortar(campo);
             cantidad++;
-            break;
+            campo = "";
+        } else {
+            campo += linea[i];
         }
-
-        campos[cantidad] = recortar(linea.substr(inicio, barra - inicio));
-        cantidad++;
-        inicio = barra + 1;
     }
     return cantidad;
 }
 
-// ---------------------------------------------------------------------
 bool textoAEntero(const string& texto, int& resultado) {
     stringstream ss(texto);
+    if (!(ss >> resultado)) {
+        return false;
+    }
     char sobrante;
-    return (ss >> resultado) && !(ss >> sobrante);
+    if (ss >> sobrante) {
+        return false;
+    }
+    return true;
 }
 
-// ---------------------------------------------------------------------
 bool textoADecimal(const string& texto, double& resultado) {
     stringstream ss(texto);
+    if (!(ss >> resultado)) {
+        return false;
+    }
     char sobrante;
-    return (ss >> resultado) && !(ss >> sobrante);
+    if (ss >> sobrante) {
+        return false;
+    }
+    return true;
 }

@@ -1,6 +1,4 @@
-// =====================================================================
 // algebra.h - Analisis matricial (Algebra Lineal, pasos 19 y 20)
-// ---------------------------------------------------------------------
 // Para un ciclo del pensum se arman dos matrices de m filas (estudiantes)
 // por n columnas (cursos del ciclo):
 //
@@ -10,16 +8,15 @@
 // M es necesaria para no confundir "no tiene nota" con "saco 0": al
 // dividir se usa M para contar solo las notas que existen.
 //
-// Paso 19:  transpuesta P^T  y promedio de cada curso:
+// transpuesta P^T  y promedio de cada curso:
 //           suma de notas    s = P^T * 1      (1 = vector de unos)
 //           cantidad notas   k = M^T * 1
 //           promedio curso j = s[j] / k[j]
 //
-// Paso 20:  promedio ponderado por creditos de cada estudiante:
+// promedio ponderado por creditos de cada estudiante:
 //           c = vector de creditos de los cursos del ciclo
 //           ponderado[i] = (P * c)[i] / (M * c)[i]
 //           y la nota necesaria en un curso:  acumulado + x = NOTA_MINIMA
-// =====================================================================
 #pragma once
 
 #include "modelos.h"

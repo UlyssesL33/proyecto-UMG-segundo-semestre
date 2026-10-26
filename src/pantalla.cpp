@@ -1,19 +1,17 @@
-// =====================================================================
 // pantalla.cpp - Aspecto visual de la consola
-// =====================================================================
 #include "pantalla.h"
 #include "config.h"
 
 #include <iostream>
-#include <cstdlib>   // system()
-#include <sstream>   // stringstream
-#include <iomanip>   // fixed, setprecision
+#include <cstdlib>
+#include <sstream>
+#include <iomanip>
 
 #ifdef _WIN32
     #ifndef NOMINMAX
     #define NOMINMAX
     #endif
-    #include <windows.h>   // solo para activar los colores en Windows
+    #include <windows.h>
 #endif
 
 using namespace std;
@@ -21,10 +19,8 @@ using namespace std;
 // Ancho de las lineas del encabezado y separadores
 const int ANCHO = 64;
 
-// ---------------------------------------------------------------------
 // Codigos ANSI de cada color. "\033" es el caracter ESC; la consola lo
 // interpreta como "lo que sigue es una instruccion, no texto".
-// ---------------------------------------------------------------------
 static const char* codigoColor(Color color) {
     switch (color) {
         case VERDE:    return "\033[32m";
@@ -38,11 +34,9 @@ static const char* codigoColor(Color color) {
 
 static const char* const RESTABLECER = "\033[0m";   // vuelve al color normal
 
-// ---------------------------------------------------------------------
 // En Windows la consola clasica no interpreta los codigos ANSI hasta
 // que se activa el modo "virtual terminal". En otros sistemas no hace
 // falta nada.
-// ---------------------------------------------------------------------
 void iniciarConsola() {
 #ifdef _WIN32
     HANDLE salida = GetStdHandle(STD_OUTPUT_HANDLE);
@@ -90,15 +84,10 @@ string textoDecimal(double valor, int decimales) {
     return ss.str();
 }
 
-// ---------------------------------------------------------------------
 // Ejemplo de lo que dibuja:
 //
-// ================================================================
 //   CONTROL ACADEMICO  |  Ingenieria en Sistemas UMG
-// ================================================================
 //   > Cursos y notas > Ulises Lopez
-// ----------------------------------------------------------------
-// ---------------------------------------------------------------------
 void encabezado(const string& seccion) {
     limpiarPantalla();
     string doble(ANCHO, '=');

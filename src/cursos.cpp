@@ -1,24 +1,20 @@
-// =====================================================================
 // cursos.cpp - Carga y consulta del pensum
-// =====================================================================
 #include "cursos.h"
 #include "config.h"
-#include "validaciones.h"   // recortar, partirLinea, textoAEntero
+#include "validaciones.h"
 #include "pantalla.h"
-#include "arboles.h"       // validarArbolesBinarios
+#include "arboles.h"
 
 #include <iostream>
-#include <fstream>   // ifstream: leer archivos
-#include <sstream>   // stringstream: armar el texto del requisito
+#include <fstream>
+#include <sstream>
 
 using namespace std;
 
-// ---------------------------------------------------------------------
 // Lee datos/pensum.txt linea por linea.
 //   - Las lineas vacias y las que empiezan con '#' se ignoran.
 //   - Cada linea valida tiene 6 campos separados por '|'.
 //   - Si una linea esta mal escrita se avisa y se salta.
-// ---------------------------------------------------------------------
 int cargarPensum(Curso cursos[], const string& ruta) {
     ifstream archivo(ruta.c_str());
 
@@ -76,9 +72,7 @@ int cargarPensum(Curso cursos[], const string& ruta) {
     return numCursos;
 }
 
-// ---------------------------------------------------------------------
 // Busqueda secuencial: recorre el arreglo hasta encontrar el codigo.
-// ---------------------------------------------------------------------
 int buscarCurso(const Curso cursos[], int numCursos, const string& codigo) {
     for (int i = 0; i < numCursos; i++) {
         if (cursos[i].codigo == codigo) {
@@ -88,7 +82,6 @@ int buscarCurso(const Curso cursos[], int numCursos, const string& codigo) {
     return -1;
 }
 
-// ---------------------------------------------------------------------
 int totalCreditosPensum(const Curso cursos[], int numCursos) {
     int total = 0;
     for (int i = 0; i < numCursos; i++) {
@@ -97,10 +90,8 @@ int totalCreditosPensum(const Curso cursos[], int numCursos) {
     return total;
 }
 
-// ---------------------------------------------------------------------
 // Texto que describe el requisito de un curso:
 //   "090008 Algoritmos", "70 creditos aprobados" o "-"
-// ---------------------------------------------------------------------
 static string describirRequisito(const Curso cursos[], int numCursos, const Curso& c) {
     if (c.prerrequisito != SIN_PRERREQUISITO) {
         int pos = buscarCurso(cursos, numCursos, c.prerrequisito);
@@ -117,9 +108,7 @@ static string describirRequisito(const Curso cursos[], int numCursos, const Curs
     return "-";
 }
 
-// ---------------------------------------------------------------------
 // Recorre los ciclos del 1 al ultimo y, en cada uno, muestra sus cursos.
-// ---------------------------------------------------------------------
 void listarPensum(const Curso cursos[], int numCursos) {
     int cicloMayor = ultimoCiclo(cursos, numCursos);
 
@@ -149,7 +138,6 @@ void listarPensum(const Curso cursos[], int numCursos) {
          << totalCreditosPensum(cursos, numCursos) << " creditos\n";
 }
 
-// ---------------------------------------------------------------------
 void mostrarCurso(const Curso cursos[], int numCursos, int posicion) {
     const Curso& c = cursos[posicion];
     cout << "\n" << pintar("  Codigo:     ", GRIS) << c.codigo << "\n"
@@ -159,7 +147,6 @@ void mostrarCurso(const Curso cursos[], int numCursos, int posicion) {
          << pintar("  Requisito:  ", GRIS) << describirRequisito(cursos, numCursos, c) << "\n";
 }
 
-// ---------------------------------------------------------------------
 int ultimoCiclo(const Curso cursos[], int numCursos) {
     int mayor = 0;
     for (int i = 0; i < numCursos; i++) {
@@ -170,12 +157,10 @@ int ultimoCiclo(const Curso cursos[], int numCursos) {
     return mayor;
 }
 
-// ---------------------------------------------------------------------
 // Lista numerada: el usuario elige por numero en vez de escribir codigos.
 // El numero que ve el usuario (1, 2, 3...) no es la posicion real del
 // curso; por eso opciones[] guarda las posiciones reales:
 //   el usuario elige 2  ->  se devuelve opciones[1]
-// ---------------------------------------------------------------------
 int elegirCurso(const Curso cursos[], const int opciones[], int cantidad,
                 const string& titulo) {
     subtitulo(titulo + ":");

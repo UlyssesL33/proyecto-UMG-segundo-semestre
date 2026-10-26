@@ -1,6 +1,4 @@
-// =====================================================================
 // conjuntos.cpp - Conjuntos de cursos (Matematica Discreta, paso 15)
-// =====================================================================
 #include "conjuntos.h"
 #include "config.h"
 #include "pantalla.h"
@@ -9,9 +7,7 @@
 
 using namespace std;
 
-// =====================================================================
 // Construir conjuntos
-// =====================================================================
 
 void conjuntoPensum(bool S[], int numCursos) {
     for (int c = 0; c < numCursos; c++) {
@@ -25,10 +21,8 @@ void conjuntoPorEstado(const Estudiante& e, int numCursos, int estado, bool resu
     }
 }
 
-// =====================================================================
 // Operaciones: cada una recorre las posiciones y aplica un operador
 // logico. Por eso conjuntos y logica proposicional van de la mano.
-// =====================================================================
 
 void unionConjuntos(const bool A[], const bool B[], bool resultado[], int numCursos) {
     for (int c = 0; c < numCursos; c++) {
@@ -79,9 +73,7 @@ int creditosDe(const bool A[], const Curso cursos[], int numCursos) {
     return total;
 }
 
-// =====================================================================
 // Mostrar
-// =====================================================================
 
 // Ejemplo:   A = { 090001, 090002, 090008 }   |A| = 3
 // Si son muchos, se parte en varias lineas de 7 codigos.
@@ -129,9 +121,7 @@ static string verdad(bool valor) {
     return valor ? pintar("Verdadero", VERDE) : pintar("Falso", ROJO);
 }
 
-// =====================================================================
 // Pantalla: conjuntos de un estudiante
-// =====================================================================
 
 void pantallaConjuntosEstudiante(const Estudiante& e, const Curso cursos[], int numCursos) {
     bool S[MAX_CURSOS], A[MAX_CURSOS], C[MAX_CURSOS], R[MAX_CURSOS];
@@ -188,9 +178,7 @@ void pantallaConjuntosEstudiante(const Estudiante& e, const Curso cursos[], int 
          << pintar(" del pensum)", GRIS) << "\n";
 }
 
-// =====================================================================
 // Pantalla: comparar dos estudiantes
-// =====================================================================
 
 void pantallaCompararEstudiantes(const Estudiante& e1, const Estudiante& e2,
                                  const Curso cursos[], int numCursos) {

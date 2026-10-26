@@ -1,6 +1,4 @@
-// =====================================================================
 // archivos.h - Guardar y cargar estudiantes en datos/estudiantes.txt
-// ---------------------------------------------------------------------
 // Formato del archivo (texto plano, separado por '|'):
 //
 //   E|carne|nombre|carrera
@@ -14,7 +12,6 @@
 // Ejemplo:
 //   E|0900-26-9368|Ulises Lopez|0900
 //   C|0900-26-9368|090008|2|10|15|30|30
-// =====================================================================
 #pragma once
 
 #include <string>

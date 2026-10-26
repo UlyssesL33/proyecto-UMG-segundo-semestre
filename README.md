@@ -46,3 +46,28 @@ inexistentes. Los enlaces representan prerrequisitos, no un orden de busqueda.
 
 Crear un proyecto vacio de C++ y usar "Agregar elemento existente" con los
 archivos de `src/`. No mover los archivos fuera de `src/`.
+
+## Como seguir el codigo
+
+1. Empezar en `main.cpp`: cada opcion del `switch` llama a un modulo.
+2. Leer `modelos.h` y `config.h` para entender los datos y sus limites.
+3. Seguir `registrarEstudiante`, `menuCursosYNotas` y `guardarEstudiantes`.
+4. Revisar conjuntos, logica, arboles y algebra por separado.
+
+Los menus usan el mismo flujo: mostrar opciones, leer, ejecutar y pausar.
+`reiniciarCurso` cambia el estado y limpia las notas en un solo lugar.
+En los arboles, `nivel` controla la sangria y `I`/`D` indican cada rama.
+Las formulas matematicas se explican dentro de sus pantallas.
+
+## Pruebas (PowerShell, desde la raiz)
+
+```powershell
+New-Item -ItemType Directory -Force build/pruebas | Out-Null
+$modulos = Get-ChildItem src/*.cpp | Where-Object Name -ne 'main.cpp' | Select-Object -ExpandProperty FullName
+g++ -std=c++11 -Wall -Wextra -I src tests/arboles_binarios.cpp $modulos -o build/pruebas/arboles.exe
+./build/pruebas/arboles.exe build/pruebas/pensum_prueba.txt
+g++ -std=c++11 -Wall -Wextra -I src tests/flujos_basicos.cpp $modulos -o build/pruebas/flujos.exe
+./build/pruebas/flujos.exe build/pruebas/estudiantes_prueba.txt
+```
+
+Los archivos de prueba se escriben en `build/pruebas`, separados de los datos reales.

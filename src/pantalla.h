@@ -1,6 +1,4 @@
-// =====================================================================
 // pantalla.h - Aspecto visual de la consola (estilo TUI sencillo)
-// ---------------------------------------------------------------------
 // Todo lo visual pasa por aqui: limpiar pantalla, encabezados, colores
 // y mensajes. Asi el resto del programa no repite codigos de color, y si
 // una consola no muestra bien los colores se apagan con USAR_COLORES
@@ -8,7 +6,6 @@
 //
 // Los colores usan secuencias ANSI ("\033[32m" = verde). Funcionan en la
 // terminal de VS Code, Windows Terminal y la consola de Windows 10/11.
-// =====================================================================
 #pragma once
 
 #include <string>

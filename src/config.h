@@ -1,9 +1,6 @@
-// =====================================================================
 // config.h - Constantes globales del programa
-// ---------------------------------------------------------------------
 // Todos los numeros "fijos" del programa viven aqui. Si el catedratico
 // pide cambiar la nota de aprobacion de 61 a 65, se cambia SOLO aqui.
-// =====================================================================
 #pragma once
 
 #include <string>

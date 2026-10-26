@@ -1,18 +1,13 @@
-// =====================================================================
 // notas.h - Cursos de un estudiante y sus notas
-// ---------------------------------------------------------------------
-// Pasos 8, 9, 10 y 11 del roadmap:
-//   8. Marcar cursos aprobados sin nota (ciclos anteriores)
-//   9. Inscribir un curso (queda "en curso")
-//  10. Ingresar los puntos netos de P1, P2, Zona y Final
-//  11. Promedio del estudiante entre sus cursos
-// =====================================================================
 #pragma once
 
 #include <string>
 #include "modelos.h"
 
 // ---------- Calculos sobre un curso de un estudiante ----------
+
+// Cambia el estado y deja todos sus componentes sin calificar.
+void reiniciarCurso(Estudiante& e, int curso, int estado);
 
 // true si el curso tiene al menos un componente calificado.
 bool tieneNotas(const Estudiante& e, int curso);
@@ -59,7 +54,6 @@ std::string estadoConColor(int estado, int ancho);
 // Muestra los cursos que el estudiante ha llevado, con notas y estado.
 void mostrarCursosEstudiante(const Estudiante& e, const Curso cursos[], int numCursos);
 
-// Opcion 2 del menu principal: pide un carne y muestra el submenu de
-// cursos y notas para ese estudiante.
+// Elige un estudiante y abre su menu de cursos y notas.
 void menuCursosYNotas(Estudiante estudiantes[], int numEstudiantes,
                       const Curso cursos[], int numCursos);

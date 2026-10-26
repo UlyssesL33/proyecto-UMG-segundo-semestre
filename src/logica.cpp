@@ -1,18 +1,15 @@
-// =====================================================================
-// logica.cpp - Regla de habilitacion (paso 16)
-// =====================================================================
+// logica.cpp - Regla de habilitacion
 #include "logica.h"
 #include "config.h"
 #include "pantalla.h"
-#include "cursos.h"      // buscarCurso
-#include "notas.h"       // creditosAprobados
-#include "conjuntos.h"   // conjuntoPorEstado, diferencia, esSubconjunto, mostrarConjunto
+#include "cursos.h"
+#include "notas.h"
+#include "conjuntos.h"
 
 #include <iostream>
 
 using namespace std;
 
-// ---------------------------------------------------------------------
 Habilitacion evaluarHabilitacion(const Estudiante& e, const Curso cursos[], int numCursos,
                                  int curso) {
     Habilitacion h;
@@ -51,10 +48,8 @@ static string valorVerdad(bool valor, int ancho) {
     return valor ? pintar(columna("V", ancho), VERDE) : pintar(columna("F", ancho), ROJO);
 }
 
-// ---------------------------------------------------------------------
 // Tabla de verdad de la regla, solo para los cursos pendientes (P = S - A):
 // los aprobados ya se sabe que no estan habilitados (p es falsa).
-// ---------------------------------------------------------------------
 void pantallaHabilitados(const Estudiante& e, const Curso cursos[], int numCursos) {
     int creditos = creditosAprobados(e, cursos, numCursos);
 

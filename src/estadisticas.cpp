@@ -1,20 +1,16 @@
-// =====================================================================
-// estadisticas.cpp - Reportes y estadisticas (paso 13)
-// =====================================================================
+// estadisticas.cpp - Reportes y estadisticas
 #include "estadisticas.h"
 #include "config.h"
 #include "pantalla.h"
-#include "cursos.h"   // elegirCurso
-#include "notas.h"    // notaCurso, notasCompletas, promedioEstudiante, ...
+#include "cursos.h"
+#include "notas.h"
 
 #include <iostream>
 #include <string>
 
 using namespace std;
 
-// ---------------------------------------------------------------------
 // Resultados de un curso, calculados recorriendo a todos los estudiantes.
-// ---------------------------------------------------------------------
 struct ResumenCurso {
     int    llevan;       // estudiantes que lo llevan o lo llevaron
     int    aprobados;
@@ -64,9 +60,7 @@ static ResumenCurso calcularResumenCurso(const Estudiante estudiantes[], int num
     return r;
 }
 
-// ---------------------------------------------------------------------
 // Listado por curso
-// ---------------------------------------------------------------------
 void listarPorCurso(const Estudiante estudiantes[], int numEstudiantes,
                     const Curso cursos[], int numCursos) {
     if (numEstudiantes == 0) {
@@ -129,9 +123,7 @@ void listarPorCurso(const Estudiante estudiantes[], int numEstudiantes,
     }
 }
 
-// ---------------------------------------------------------------------
 // Estadisticas generales
-// ---------------------------------------------------------------------
 void mostrarEstadisticas(const Estudiante estudiantes[], int numEstudiantes,
                          const Curso cursos[], int numCursos) {
     if (numEstudiantes == 0) {

@@ -1,32 +1,25 @@
-// =====================================================================
 // Control Academico - Ingenieria en Sistemas UMG
 // Proyecto integrador: Algoritmos, Algebra Lineal y Matematica Discreta
-// ---------------------------------------------------------------------
 // Menu principal: cada opcion llama a la funcion de su modulo.
-// =====================================================================
 
 #include <iostream>
 #include <string>
 
-#include "config.h"        // constantes (NOTA_MINIMA, MAX_CURSOS, ...)
-#include "modelos.h"       // struct Curso y struct Estudiante
-#include "pantalla.h"      // encabezado, colores, mensajes, pausar
-#include "validaciones.h"  // leerEntero, leerDecimal, leerTexto, leerCarne
-#include "cursos.h"        // cargarPensum, buscarCurso, listarPensum
-#include "estudiantes.h"   // registrar, buscar, consultar y listar estudiantes
-#include "archivos.h"      // guardarEstudiantes, cargarEstudiantes
-#include "notas.h"         // inscribir cursos e ingresar notas
-#include "estadisticas.h"  // listado por curso y estadisticas
-#include "discreta.h"      // conjuntos, logica y arboles
-#include "algebra.h"       // matrices y ecuaciones
+#include "config.h"
+#include "modelos.h"
+#include "pantalla.h"
+#include "validaciones.h"
+#include "cursos.h"
+#include "estudiantes.h"
+#include "archivos.h"
+#include "notas.h"
+#include "estadisticas.h"
+#include "discreta.h"
+#include "algebra.h"
 
 using namespace std;
 
-// ---------------------------------------------------------------------
-// Datos del programa
-// Se declaran fuera de main (variables globales) porque los arreglos de
-// struct son grandes; dentro de main podrian llenar la pila de memoria.
-// ---------------------------------------------------------------------
+// Datos compartidos por las opciones del menu.
 Curso cursos[MAX_CURSOS];
 int   numCursos = 0;
 
@@ -51,9 +44,7 @@ const string NOMBRES_OPCION[NUM_OPCIONES] = {
     "Ver pensum"                              // 11
 };
 
-// ---------------------------------------------------------------------
 // Opcion 11: consultar el pensum completo o un curso por su codigo.
-// ---------------------------------------------------------------------
 void menuPensum() {
     opcionMenu(1, "Ver pensum completo por ciclo");
     opcionMenu(2, "Buscar curso por codigo");
@@ -73,9 +64,7 @@ void menuPensum() {
     }
 }
 
-// ---------------------------------------------------------------------
-// Opcion 4: listado global (por promedio) o por curso (por nota).
-// ---------------------------------------------------------------------
+// Listado global con promedios o listado de un curso.
 void menuListar() {
     opcionMenu(1, "Global: todos los estudiantes con su promedio");
     opcionMenu(2, "Por curso: estudiantes y notas de un curso");
@@ -89,9 +78,7 @@ void menuListar() {
     }
 }
 
-// ---------------------------------------------------------------------
 // Opcion 10 (y al salir): guarda los estudiantes en el archivo.
-// ---------------------------------------------------------------------
 void guardarInformacion() {
     if (guardarEstudiantes(estudiantes, numEstudiantes, cursos, numCursos, RUTA_ESTUDIANTES)) {
         mensajeExito("Informacion guardada en " + RUTA_ESTUDIANTES + " ("
@@ -109,17 +96,14 @@ void mostrarMenu() {
          << pintar("    Nota minima: ", GRIS) << NOTA_MINIMA << "\n";
 
     grupoMenu("ESTUDIANTES");
-    opcionMenu(1, NOMBRES_OPCION[1]);
-    opcionMenu(2, NOMBRES_OPCION[2]);
-    opcionMenu(3, NOMBRES_OPCION[3]);
-    opcionMenu(4, NOMBRES_OPCION[4]);
-    opcionMenu(5, NOMBRES_OPCION[5]);
-    opcionMenu(6, NOMBRES_OPCION[6]);
+    for (int i = 1; i <= 6; i++) {
+        opcionMenu(i, NOMBRES_OPCION[i]);
+    }
 
     grupoMenu("REPORTES Y ANALISIS");
-    opcionMenu(7, NOMBRES_OPCION[7]);
-    opcionMenu(8, NOMBRES_OPCION[8] + pintar("       (matrices y ecuaciones)", GRIS));
-    opcionMenu(9, NOMBRES_OPCION[9] + pintar("  (conjuntos, logica, arboles)", GRIS));
+    for (int i = 7; i <= 9; i++) {
+        opcionMenu(i, NOMBRES_OPCION[i]);
+    }
 
     grupoMenu("SISTEMA");
     opcionMenu(10, NOMBRES_OPCION[10]);
@@ -129,10 +113,8 @@ void mostrarMenu() {
     separador();
 }
 
-// ---------------------------------------------------------------------
 // Carga el pensum y los estudiantes guardados.
 // Devuelve false si el programa no puede continuar (no hay pensum).
-// ---------------------------------------------------------------------
 bool cargarDatos() {
     encabezado("Inicio");
 

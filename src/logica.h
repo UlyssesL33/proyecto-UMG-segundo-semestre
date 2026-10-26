@@ -1,6 +1,4 @@
-// =====================================================================
-// logica.h - Regla de habilitacion como proposicion logica (paso 16)
-// ---------------------------------------------------------------------
+// logica.h - Regla de habilitacion como proposicion logica
 // Un curso c esta HABILITADO para un estudiante si se cumplen las cuatro
 // proposiciones a la vez (conjuncion):
 //
@@ -12,7 +10,6 @@
 //   habilitado(c) = p AND q AND r AND s
 //
 // Basta que una sea falsa para que el curso no este habilitado.
-// =====================================================================
 #pragma once
 
 #include "modelos.h"

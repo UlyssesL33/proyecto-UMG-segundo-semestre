@@ -1,22 +1,18 @@
-// =====================================================================
 // archivos.cpp - Guardar y cargar estudiantes
-// =====================================================================
 #include "archivos.h"
 #include "config.h"
-#include "validaciones.h"   // recortar, partirLinea, textoAEntero, formatoCarneValido
-#include "cursos.h"         // buscarCurso
-#include "estudiantes.h"    // inicializarEstudiante, buscarEstudiante
-#include "pantalla.h"       // mensajeAviso
+#include "validaciones.h"
+#include "cursos.h"
+#include "estudiantes.h"
+#include "pantalla.h"
 
 #include <iostream>
-#include <fstream>   // ofstream (escribir) e ifstream (leer)
+#include <fstream>
 
 using namespace std;
 
-// ---------------------------------------------------------------------
 // Recorre los estudiantes. Por cada uno escribe su linea E y luego una
 // linea C por cada curso que haya llevado.
-// ---------------------------------------------------------------------
 bool guardarEstudiantes(const Estudiante estudiantes[], int numEstudiantes,
                         const Curso cursos[], int numCursos,
                         const string& ruta) {
@@ -50,13 +46,11 @@ bool guardarEstudiantes(const Estudiante estudiantes[], int numEstudiantes,
     return true;
 }
 
-// ---------------------------------------------------------------------
 // Lee el archivo linea por linea. Segun la primera letra:
 //   E -> agrega un estudiante nuevo al arreglo
 //   C -> busca a ese estudiante y le asigna el estado y notas del curso
 // Cualquier linea con errores se avisa y se ignora, para que un archivo
 // danado no meta datos invalidos al programa.
-// ---------------------------------------------------------------------
 int cargarEstudiantes(Estudiante estudiantes[],
                       const Curso cursos[], int numCursos,
                       const string& ruta) {

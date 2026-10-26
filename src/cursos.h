@@ -1,6 +1,4 @@
-// =====================================================================
 // cursos.h - Catalogo de cursos (pensum de Ingenieria en Sistemas)
-// =====================================================================
 #pragma once
 
 #include <string>

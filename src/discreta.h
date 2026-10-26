@@ -1,9 +1,6 @@
-// =====================================================================
 // discreta.h - Submenu de Matematica Discreta (opcion 9)
-// ---------------------------------------------------------------------
-// Reune las pantallas de conjuntos (paso 15), logica (paso 16) y
-// arboles (pasos 17 y 18).
-// =====================================================================
+// Reune las pantallas de conjuntos, logica y
+// arboles.
 #pragma once
 
 #include "modelos.h"

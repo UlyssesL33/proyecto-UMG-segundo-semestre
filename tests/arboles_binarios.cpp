@@ -40,6 +40,7 @@ int main(int argc, char* argv[]) {
     hijos = hijosBinariosDe(cursos, 5, 2);
     comprobar(hijos.izquierdo == -1 && hijos.derecho == -1, "hoja");
     comprobar(altura(cursos, 5, 0) == 3, "altura con dos ramas");
+    comprobar(altura(cursos, 5, -1) == 0, "altura de una rama vacia");
     comprobar(contarDescendientes(cursos, 5, 0) == 3, "descendientes de ambas ramas");
     comprobar(altura(cursos, 5, 2) == 1 && contarDescendientes(cursos, 5, 2) == 0,
               "altura y descendientes de una hoja");
