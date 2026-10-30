@@ -121,7 +121,24 @@ void consultarEstudiante(const Estudiante estudiantes[], int numEstudiantes,
         return;
     }
 
-    string carne = leerCarne("  Carne a buscar: ");
+    string carne;
+
+    cout << "\n  Escriba 0 para regresar al menu principal.\n";
+    carne = leerTexto("  Carne a buscar: ");
+
+    if (carne == "0") {
+        return;
+    }
+
+    while (!formatoCarneValido(carne) || carne.substr(0, 4) != CODIGO_CARRERA) {
+        mensajeError("Formato de carne invalido o carrera incorrecta.");
+        carne = leerTexto("  Carne a buscar (0 para regresar): ");
+
+        if (carne == "0") {
+            return;
+        }
+    }
+
     int pos = buscarEstudiante(estudiantes, numEstudiantes, carne);
 
     if (pos == -1) {
